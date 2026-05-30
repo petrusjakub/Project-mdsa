@@ -1,0 +1,31 @@
+{
+  "id": "FEAT-001",
+  "type": "chore",
+  "description": "Extract all MDSA premium data from the xlsx XML shared strings into a structured JSON file that can be embedded in the HTML calculator. The data is in /projects/sandbox/Project-mdsa/xlsx_extract/xl/sharedStrings.xml.",
+  "status": "completed",
+  "steps": [
+    "Write a Python script (using only xml.etree.ElementTree from stdlib) that parses /projects/sandbox/Project-mdsa/xlsx_extract/xl/sharedStrings.xml",
+    "Extract all shared strings into a list, where each entry joins all <t> elements within each <si> element",
+    "Identify the title strings that follow pattern 'Pria/Wanita - Usia N Tahun' (indices 21, 46, 49, 52, 55, ... pattern: first pair at 21/46, then every 3 strings after 46)",
+    "For each title string, extract the next string as IDR premium data and the string after that as USD premium data",
+    "Parse the IDR data: split by spaces, take first 44 numeric values (treating '-' as null). Structure: Limited Pay (13 values): Saving[UP1M,UP2M,UP5M,UP10M], Jiwa[UP1M,UP2M,UP5M,UP10M], Kritis[UP100Jt,UP1M], Kesehatan[UP100Jt,UP1M], Lengkap[UP1M]. Regular Pay (31 values): complex structure with riders.",
+    "Parse the USD data: split by spaces handling comma-separated thousands (e.g., '3,160'), take 18 numeric values. Structure: Limited Pay USD has Saving[100Ribu/10K], then Regular Pay options.",
+    "Build a JSON structure keyed by 'gender|age' containing both IDR and USD arrays",
+    "Save as /projects/sandbox/Project-mdsa/premium_data.json",
+    "Verify the output has data for all 142 combinations (71 ages 0-70 x 2 genders) and spot-check values against known data points"
+  ],
+  "acceptance_criteria": [
+    "premium_data.json exists and is valid JSON",
+    "Contains exactly 142 entries (ages 0-70 for both Pria and Wanita)",
+    "Each entry has 'idr' array with 44 values and 'usd' array with 18 values",
+    "Values for Pria Age 0 IDR start with [100.0, 200.0, 500.0, 1000.0, 6.3, 12.6, 31.6, 63.2, ...]",
+    "Ages 61+ have first 4 IDR values as null (Saving Limited Pay not available)",
+    "USD values correctly handle comma-separated thousands (e.g., '3,160' becomes 3160)"
+  ],
+  "verification": [
+    "Run the extraction script: python3 /projects/sandbox/Project-mdsa/extract_premiums.py",
+    "Check output file exists and parse it: python3 -c \"import json; data=json.load(open('/projects/sandbox/Project-mdsa/premium_data.json')); print(len(data), 'entries'); print(data['pria|0']['idr'][:8])\""
+  ],
+  "blocked_reason": null,
+  "findings": "Successfully extracted 142 entries. Pattern: title string (Pria/Wanita - Usia N Tahun), then scan forward for first data string with 44+ numeric tokens (IDR), then scan forward again for next data string with 18 tokens (USD). Special case: Pria age 61 has an extra header string between IDR and USD data (index 411) because it is the first age where Limited Pay Saving USD becomes unavailable (the table layout changes). The script handles this by scanning past non-data strings. All values verified correct."
+}
