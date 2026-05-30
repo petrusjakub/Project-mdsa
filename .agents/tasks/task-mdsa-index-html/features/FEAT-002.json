@@ -38,5 +38,5 @@
     "Verify no external dependencies: python3 -c \"html=open('/projects/sandbox/Project-mdsa/index.html').read(); assert 'src=' not in html or 'src=\\\"http' not in html; print('Self-contained check pass')\""
   ],
   "blocked_reason": null,
-  "findings": "Successfully generated 92KB self-contained index.html. Premium data (50KB minified) embedded as PREMIUM_DATA JS variable. Calculator maps IDR Limited Pay (indices 0-12), IDR Regular Pay (indices 13-43), USD Limited Pay (indices 0-1), USD Regular Pay (indices 2-17). All acceptance criteria verified: 7 tabs working, 12 FAQ items, password protection, responsive CSS, green theme, WA integration."
+  "findings": "Successfully generated 92KB self-contained index.html. Premium data (50KB minified) embedded as PREMIUM_DATA JS variable. Calculator maps IDR Limited Pay (indices 0-12), IDR Regular Pay (indices 13-43), USD Limited Pay (indices 0-1), USD Regular Pay (indices 2-14). All acceptance criteria verified: 7 tabs working, 12 FAQ items, password protection, responsive CSS, green theme, WA integration. Post-review fixes applied: USD LP label corrected from 'UP 10 Ribu' to 'UP 500 Ribu', removed duplicated USD RP indices 15-17 (kritis Jade Smart/Topaz and kesehatan Jade), added Saving LP and Regular Pay disclaimers."
 }
