@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "chore",
   "description": "Extract all MDSA premium data from the xlsx XML shared strings into a structured JSON file that can be embedded in the HTML calculator. The data is in /projects/sandbox/Project-mdsa/xlsx_extract/xl/sharedStrings.xml.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Write a Python script (using only xml.etree.ElementTree from stdlib) that parses /projects/sandbox/Project-mdsa/xlsx_extract/xl/sharedStrings.xml",
     "Extract all shared strings into a list, where each entry joins all <t> elements within each <si> element",
@@ -27,5 +27,5 @@
     "Check output file exists and parse it: python3 -c \"import json; data=json.load(open('/projects/sandbox/Project-mdsa/premium_data.json')); print(len(data), 'entries'); print(data['pria|0']['idr'][:8])\""
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Successfully extracted 142 entries. Pattern: title string (Pria/Wanita - Usia N Tahun), then scan forward for first data string with 44+ numeric tokens (IDR), then scan forward again for next data string with 18 tokens (USD). Special case: Pria age 61 has an extra header string between IDR and USD data (index 411) because it is the first age where Limited Pay Saving USD becomes unavailable (the table layout changes). The script handles this by scanning past non-data strings. All values verified correct."
 }
