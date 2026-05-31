@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiUHC - Mi Ultimate Healthcare | Manulife Indonesia</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;color:#333;background:#f5f5f5;padding-top:48px;padding-bottom:80px}
+a{color:#00a758}
+
+/* WA Banner */
+.wa-banner{position:fixed;top:0;left:0;right:0;z-index:9999;background:#25D366;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 15px;text-decoration:none;color:#fff;font-weight:700;font-size:clamp(0.85rem,2.5vw,1rem);box-shadow:0 2px 8px rgba(0,0,0,0.15);cursor:pointer;transition:background .2s}
+.wa-banner:hover{background:#1DA851}
+.wa-banner svg{width:20px;height:20px;fill:#fff;flex-shrink:0}
+.wa-banner span{white-space:nowrap}
+
+/* Floating WA Button */
+.floating-wa{position:fixed;bottom:25px;right:25px;background:#25D366;color:#fff;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 4px 15px rgba(37,211,102,0.4);z-index:9999;transition:transform .2s,box-shadow .2s}
+.floating-wa:hover{transform:scale(1.1);box-shadow:0 6px 20px rgba(37,211,102,0.6)}
+.floating-wa svg{width:28px;height:28px;fill:#fff}
+.wa-tooltip{position:fixed;bottom:90px;right:25px;background:#fff;color:#333;padding:8px 14px;border-radius:8px;font-size:.75rem;font-weight:600;box-shadow:0 2px 10px rgba(0,0,0,0.15);z-index:9999;white-space:nowrap;opacity:0;transform:translateY(5px);transition:all .3s;pointer-events:none}
+.floating-wa:hover+.wa-tooltip{opacity:1;transform:translateY(0)}
+
+/* Header */
+.header{background:linear-gradient(135deg,#00a758 0%,#006838 100%);color:#fff;padding:30px 20px;text-align:center}
+.header h1{font-size:clamp(1.4rem,4vw,2rem);margin-bottom:5px}
+.header p{font-size:1rem;opacity:.9}
+
+/* Tabs */
+.tabs-container{background:#fff;border-bottom:2px solid #00a758;position:sticky;top:48px;z-index:998;overflow-x:auto;white-space:nowrap;box-shadow:0 2px 5px rgba(0,0,0,0.1);-webkit-overflow-scrolling:touch}
+.tabs{display:flex;padding:0;list-style:none;min-width:max-content}
+.tabs li{padding:12px 16px;cursor:pointer;font-size:.85rem;font-weight:500;color:#555;border-bottom:3px solid transparent;transition:all .2s;user-select:none}
+.tabs li:hover{background:#e8f5e9;color:#00a758}
+.tabs li.active{color:#00a758;border-bottom-color:#00a758;background:#e8f5e9;font-weight:700}
+
+/* Tab Content */
+.tab-content{display:none;padding:30px 20px;max-width:1200px;margin:0 auto}
+.tab-content.active{display:block}
+
+/* Cards */
+.card{background:#fff;border-radius:12px;padding:25px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.card h2{color:#00a758;margin-bottom:15px;font-size:1.4rem}
+.card h3{color:#006838;margin:18px 0 10px;font-size:1.1rem}
+.card p,.card li{line-height:1.7;margin-bottom:8px}
+.card ul,.card ol{padding-left:20px}
+
+/* Badges */
+.badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;margin-right:8px;margin-bottom:5px}
+.badge-green{background:#e8f5e9;color:#2e7d32}
+.badge-blue{background:#e3f2fd;color:#1565c0}
+.badge-orange{background:#fff3e0;color:#e65100}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;margin:15px 0;font-size:.85rem;overflow-x:auto;display:block}
+th{background:#00a758;color:#fff;padding:10px 8px;text-align:center;font-weight:600;white-space:nowrap}
+td{padding:8px;text-align:center;border-bottom:1px solid #e0e0e0;white-space:nowrap}
+tr:nth-child(even){background:#f8fdf9}
+tr:hover{background:#e8f5e9}
+
+/* Info boxes */
+.info-box{background:#e8f5e9;border-left:4px solid #00a758;padding:15px;margin:15px 0;border-radius:0 8px 8px 0}
+.highlight-box{background:#fff8e1;border-left:4px solid #ffc107;padding:15px;margin:15px 0;border-radius:0 8px 8px 0}
+
+/* Calculator styles */
+.calc-tabs{display:flex;gap:0;margin-bottom:20px;background:#fff;border-radius:12px;padding:5px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.calc-tab-btn{flex:1;padding:12px 20px;border:none;background:transparent;font-size:.95rem;font-weight:600;font-family:inherit;color:#777;cursor:pointer;border-radius:8px;transition:all .3s}
+.calc-tab-btn.active{background:#00a758;color:#fff;box-shadow:0 2px 8px rgba(0,167,88,0.3)}
+.calc-tab-btn:hover:not(.active){background:rgba(0,167,88,0.08);color:#00a758}
+.calc-controls{background:#fff;border-radius:12px;padding:20px 25px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:25px;display:flex;flex-wrap:wrap;gap:15px;align-items:center}
+.calc-control-group{display:flex;flex-direction:column;gap:5px}
+.calc-control-group label{font-size:.8rem;font-weight:600;color:#00a758;text-transform:uppercase;letter-spacing:.5px}
+.calc-control-group select{padding:10px 35px 10px 12px;border:2px solid #e0e0e0;border-radius:8px;font-size:.95rem;font-family:inherit;background:#fff;cursor:pointer;transition:all .3s;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2300a758' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.calc-control-group select:focus{outline:none;border-color:#00a758;box-shadow:0 0 0 3px rgba(0,167,88,0.15)}
+
+/* Plan Cards */
+.section-title{font-size:clamp(1rem,3vw,1.3rem);font-weight:700;color:#00a758;margin:25px 0 15px;padding-left:12px;border-left:4px solid #2ECC71}
+.section-title .badge-sm{display:inline-block;background:#2ECC71;color:#fff;font-size:.7rem;padding:2px 8px;border-radius:10px;margin-left:8px;vertical-align:middle;font-weight:600}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin-bottom:30px}
+.plan-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,167,88,0.12);transition:all .3s;opacity:0;transform:translateY(15px)}
+.plan-card.animate{animation:fadeInUp .4s ease forwards}
+.plan-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,167,88,0.2)}
+.plan-card .card-header{background:linear-gradient(135deg,#00a758,#006838);color:#fff;padding:14px 16px;font-weight:700;font-size:1rem}
+.plan-card.smart .card-header{background:linear-gradient(135deg,#F39C12,#E67E22)}
+.plan-card .card-body{padding:16px}
+.plan-card .premi-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0}
+.plan-card .premi-row:last-child{border-bottom:none}
+.plan-card .premi-label{font-size:.8rem;color:#777;font-weight:500}
+.plan-card .premi-value{font-size:.95rem;font-weight:700;color:#00a758}
+.plan-card .premi-value.monthly{color:#006838;font-size:.88rem}
+.plan-card .detail-row{font-size:.78rem;color:#777;padding:3px 0;display:flex;justify-content:space-between}
+.plan-card .detail-row .detail-val{font-weight:600;color:#333}
+.plan-card .deductible-badge{display:inline-block;background:#FFF3CD;color:#856404;font-size:.72rem;padding:3px 8px;border-radius:6px;font-weight:600;margin-top:6px}
+.expand-btn{display:block;width:100%;padding:14px;border:2px dashed #00a758;border-radius:12px;background:transparent;color:#00a758;font-size:.95rem;font-weight:600;font-family:inherit;cursor:pointer;transition:all .3s;margin:20px 0}
+.expand-btn:hover{background:rgba(0,167,88,0.05);border-color:#006838}
+.all-plans{display:none}
+.all-plans.show{display:block;animation:fadeInUp .4s ease}
+.calc-info-box{background:linear-gradient(135deg,#E8F5EE,#D5F5E3);border-radius:12px;padding:18px 22px;margin:20px 0;border-left:4px solid #2ECC71}
+.calc-info-box h4{color:#00a758;font-size:.9rem;margin-bottom:6px}
+.calc-info-box p{font-size:.82rem;color:#333;margin:4px 0}
+
+/* FAQ Accordion */
+.faq-item{background:#fff;border-radius:8px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden}
+.faq-question{padding:16px 20px;cursor:pointer;font-weight:600;color:#333;display:flex;justify-content:space-between;align-items:center;transition:background .2s}
+.faq-question:hover{background:#e8f5e9}
+.faq-question::after{content:'+';font-size:1.4rem;color:#00a758;font-weight:700;transition:transform .3s}
+.faq-item.open .faq-question::after{transform:rotate(45deg)}
+.faq-answer{max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;padding:0 20px}
+.faq-item.open .faq-answer{max-height:500px;padding:0 20px 16px}
+.faq-answer p{line-height:1.7;color:#555;font-size:.9rem}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:600px){
+.header{padding:20px 15px}
+.tab-content{padding:20px 12px}
+.card{padding:18px}
+.calc-controls{padding:15px;gap:10px}
+.cards-grid{grid-template-columns:1fr;gap:12px}
+.calc-tabs{flex-direction:column;gap:5px}
+table{font-size:.75rem}
+}
+
+@media print{
+.wa-banner,.floating-wa,.wa-tooltip{display:none!important}
+body{padding-top:0}
+.tabs-container{position:static}
+.tab-content{display:block!important}
+}
+</style>
+</head>
+<body>
+
+<!-- WA Banner -->
+<a href="https://wa.me/6287781896087?text=Pak%20Petrus%2C%20saya%20mau%20tanya%20soal%20Asuransi%20Kesehatan%20MiUHC" target="_blank" class="wa-banner" aria-label="WhatsApp Petrus Jakub">
+<span>Petrus Jakub Partner Bisnis Manulife</span>
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+<span>087781896087</span>
+</a>
+
+<!-- Header -->
+<div class="header">
+<h1>Mi Ultimate Healthcare (MiUHC)</h1>
+<p>Asuransi Kesehatan Individu dari PT Asuransi Jiwa Manulife Indonesia</p>
+</div>
+
+<!-- Tabs Navigation -->
+<div class="tabs-container">
+<ul class="tabs" id="mainTabs" role="tablist">
+<li class="active" data-tab="ringkasan" role="tab">Ringkasan Produk</li>
+<li data-tab="manfaat" role="tab">Manfaat</li>
+<li data-tab="kalkulator" role="tab">Kalkulator Premi</li>
+<li data-tab="klaim" role="tab">Cara Klaim</li>
+<li data-tab="rs" role="tab">RS Rekanan</li>
+<li data-tab="medix" role="tab">Layanan Medix</li>
+<li data-tab="faq" role="tab">FAQ</li>
+</ul>
+</div>
+
+<!-- Tab 1: Ringkasan Produk -->
+<div class="tab-content active" id="tab-ringkasan" role="tabpanel">
+<div class="card">
+<h2>Apa itu MiUHC?</h2>
+<p><strong>MiUHC (Mi Ultimate Healthcare)</strong> adalah asuransi kesehatan individu dari Manulife Indonesia yang memberikan perlindungan kesehatan menyeluruh untuk Anda dan keluarga.</p>
+<p>Tersedia dalam 2 versi:</p>
+<ul>
+<li><span class="badge badge-blue">Konvensional</span> Berbasis premi asuransi</li>
+<li><span class="badge badge-green">Syariah</span> Berbasis kontribusi dan tabarru (sesuai prinsip syariah)</li>
+</ul>
+
+<h3>Keunggulan Utama</h3>
+<ul>
+<li><strong>Cashless di seluruh dunia</strong> - Cukup tunjukkan kartu MiUHC di RS rekanan, tanpa bayar di muka</li>
+<li><strong>Rawat Inap Sesuai Tagihan (As Charged)</strong> - Tidak ada sub-limit per item biaya</li>
+<li><strong>Cover usia 30 hari s/d 85 tahun</strong> - Renewable seumur hidup</li>
+<li><strong>Asuransi Jiwa Rp30 Juta</strong> - Sudah termasuk di semua plan</li>
+<li><strong>No-Claim Bonus</strong> - Limit kartu naik 10%/tahun tanpa klaim (maks 50%)</li>
+<li><strong>No-Claim Discount</strong> - Diskon premi 10% tahun berikutnya tanpa klaim (maks 15%)</li>
+</ul>
+
+<h3>Pilihan Plan</h3>
+<p>MiUHC memiliki 8 plan reguler dan 7 plan Smart (dengan deductible, hemat ~40% premi):</p>
+<div class="highlight-box">
+<p><strong>Plan Reguler:</strong> Diamond (Unlimited, Worldwide), Ruby (90M, Worldwide exc USA), Emerald (35M, Asia), Topaz (18M, Asia exc JPN/HKG/SGP), Topaz ID (18M, Indonesia), Jade (10M, Asia exc JPN/HKG/SGP), Jade ID (10M, Indonesia), Sapphire (5M, Indonesia)</p>
+<p style="margin-top:8px"><strong>Smart Plan:</strong> Sama seperti plan reguler tapi dengan deductible (biaya ditanggung sendiri sebelum manfaat berlaku). Hemat ~40% dari premi reguler!</p>
+</div>
+</div>
+</div>
+
+<!-- Tab 2: Manfaat -->
+<div class="tab-content" id="tab-manfaat" role="tabpanel">
+<div class="card">
+<h2>Manfaat MiUHC</h2>
+
+<h3>Rawat Inap (Semua Plan)</h3>
+<ul>
+<li><strong>Biaya kamar, ICU, dokter, obat, operasi</strong> - Sesuai Tagihan (As Charged)</li>
+<li>Tidak ada sub-limit per item biaya</li>
+<li>Termasuk biaya sebelum dan sesudah rawat inap</li>
+</ul>
+
+<h3>Rawat Jalan (Add-on)</h3>
+<ul>
+<li>Tersedia sebagai manfaat tambahan</li>
+<li>Cover konsultasi dokter, lab, obat rawat jalan</li>
+</ul>
+
+<h3>Rawat Gigi (Khusus Syariah)</h3>
+<ul>
+<li>Hanya tersedia untuk MiUHC Syariah</li>
+<li>Cover perawatan gigi dasar</li>
+</ul>
+
+<h3>Asuransi Jiwa</h3>
+<p>Semua plan sudah termasuk manfaat <strong>Asuransi Jiwa Rp30 Juta</strong>.</p>
+
+<h3>No-Claim Bonus</h3>
+<div class="info-box">
+<p><strong>Setahun tanpa klaim?</strong> Limit tahunan kartu Anda naik 10% per tahun, maksimal 50% dari limit awal. Contoh: limit 10M bisa naik jadi 15M setelah 5 tahun tanpa klaim!</p>
+</div>
+
+<h3>No-Claim Discount</h3>
+<div class="info-box">
+<p><strong>Setahun tanpa klaim?</strong> Dapatkan diskon premi 10% di tahun berikutnya, maksimal 15%. Jadi premi Anda bisa makin murah setiap tahun!</p>
+</div>
+
+<h3>Perbandingan Plan</h3>
+<table>
+<tr><th>Plan</th><th>Limit Tahunan</th><th>Wilayah</th><th>Kamar</th></tr>
+<tr><td>Diamond</td><td>Unlimited</td><td>Worldwide</td><td>1 Bed</td></tr>
+<tr><td>Ruby</td><td>90 Milyar</td><td>Worldwide (kec. USA)</td><td>1 Bed</td></tr>
+<tr><td>Emerald</td><td>35 Milyar</td><td>Seluruh Asia</td><td>1 Bed</td></tr>
+<tr><td>Topaz</td><td>18 Milyar</td><td>Asia (kec. JPN/HKG/SGP)</td><td>1 Bed</td></tr>
+<tr><td>Topaz ID</td><td>18 Milyar</td><td>Indonesia</td><td>1 Bed</td></tr>
+<tr><td>Jade</td><td>10 Milyar</td><td>Asia (kec. JPN/HKG/SGP)</td><td>2 Bed</td></tr>
+<tr><td>Jade ID</td><td>10 Milyar</td><td>Indonesia</td><td>2 Bed</td></tr>
+<tr><td>Sapphire</td><td>5 Milyar</td><td>Indonesia</td><td>2 Bed</td></tr>
+</table>
+
+<h3>Smart Plan (Hemat ~40%)</h3>
+<p>Smart Plan memiliki manfaat yang sama persis dengan plan reguler, tetapi dengan deductible (biaya yang ditanggung sendiri sebelum asuransi berlaku). Cocok untuk yang sudah punya asuransi kantor.</p>
+<table>
+<tr><th>Smart Plan</th><th>Deductible</th><th>Estimasi Hemat</th></tr>
+<tr><td>Diamond Smart / Ruby Smart</td><td>Rp16.000.000</td><td>~40%</td></tr>
+<tr><td>Emerald Smart / Topaz Smart / Topaz ID Smart</td><td>Rp8.000.000</td><td>~40%</td></tr>
+<tr><td>Jade Smart / Jade ID Smart</td><td>Rp5.000.000</td><td>~40%</td></tr>
+</table>
+</div>
+</div>
+
+<!-- Tab 3: Kalkulator Premi -->
+<div class="tab-content" id="tab-kalkulator" role="tabpanel">
+<div class="card">
+<h2>Kalkulator Premi MiUHC</h2>
+<p style="margin-bottom:20px">Hitung estimasi premi MiUHC berdasarkan usia, jenis kelamin, dan jenis manfaat yang Anda butuhkan.</p>
+
+<!-- Calculator Tabs -->
+<div class="calc-tabs" id="calcTabs">
+<button class="calc-tab-btn active" onclick="switchCalcTab('konvensional')">Konvensional</button>
+<button class="calc-tab-btn" onclick="switchCalcTab('syariah')">Syariah</button>
+</div>
+
+<!-- Calculator Controls -->
+<div class="calc-controls">
+<div class="calc-control-group">
+<label>Jenis Kelamin</label>
+<select id="gender" onchange="calculate()">
+<option value="PRIA">Pria</option>
+<option value="WANITA">Wanita</option>
+</select>
+</div>
+<div class="calc-control-group">
+<label>Usia</label>
+<select id="age" onchange="calculate()">
+<option value="0">0 tahun</option>
+<option value="1">1 tahun</option>
+<option value="2">2 tahun</option>
+<option value="3">3 tahun</option>
+<option value="4">4 tahun</option>
+<option value="5">5 tahun</option>
+<option value="6">6 tahun</option>
+<option value="7">7 tahun</option>
+<option value="8">8 tahun</option>
+<option value="9">9 tahun</option>
+<option value="10">10 tahun</option>
+<option value="11">11 tahun</option>
+<option value="12">12 tahun</option>
+<option value="13">13 tahun</option>
+<option value="14">14 tahun</option>
+<option value="15">15 tahun</option>
+<option value="16">16 tahun</option>
+<option value="17">17 tahun</option>
+<option value="18">18 tahun</option>
+<option value="19">19 tahun</option>
+<option value="20">20 tahun</option>
+<option value="21">21 tahun</option>
+<option value="22">22 tahun</option>
+<option value="23">23 tahun</option>
+<option value="24">24 tahun</option>
+<option value="25">25 tahun</option>
+<option value="26">26 tahun</option>
+<option value="27">27 tahun</option>
+<option value="28">28 tahun</option>
+<option value="29">29 tahun</option>
+<option value="30" selected>30 tahun</option>
+<option value="31">31 tahun</option>
+<option value="32">32 tahun</option>
+<option value="33">33 tahun</option>
+<option value="34">34 tahun</option>
+<option value="35">35 tahun</option>
+<option value="36">36 tahun</option>
+<option value="37">37 tahun</option>
+<option value="38">38 tahun</option>
+<option value="39">39 tahun</option>
+<option value="40">40 tahun</option>
+<option value="41">41 tahun</option>
+<option value="42">42 tahun</option>
+<option value="43">43 tahun</option>
+<option value="44">44 tahun</option>
+<option value="45">45 tahun</option>
+<option value="46">46 tahun</option>
+<option value="47">47 tahun</option>
+<option value="48">48 tahun</option>
+<option value="49">49 tahun</option>
+<option value="50">50 tahun</option>
+<option value="51">51 tahun</option>
+<option value="52">52 tahun</option>
+<option value="53">53 tahun</option>
+<option value="54">54 tahun</option>
+<option value="55">55 tahun</option>
+<option value="56">56 tahun</option>
+<option value="57">57 tahun</option>
+<option value="58">58 tahun</option>
+<option value="59">59 tahun</option>
+<option value="60">60 tahun</option>
+<option value="61">61 tahun</option>
+<option value="62">62 tahun</option>
+<option value="63">63 tahun</option>
+<option value="64">64 tahun</option>
+<option value="65">65 tahun</option>
+<option value="66">66 tahun</option>
+<option value="67">67 tahun</option>
+<option value="68">68 tahun</option>
+<option value="69">69 tahun</option>
+<option value="70">70 tahun</option>
+<option value="71">71 tahun</option>
+<option value="72">72 tahun</option>
+<option value="73">73 tahun</option>
+<option value="74">74 tahun</option>
+<option value="75">75 tahun</option>
+<option value="76">76 tahun</option>
+<option value="77">77 tahun</option>
+<option value="78">78 tahun</option>
+<option value="79">79 tahun</option>
+<option value="80">80 tahun</option>
+<option value="81">81 tahun</option>
+<option value="82">82 tahun</option>
+<option value="83">83 tahun</option>
+<option value="84">84 tahun</option>
+<option value="85">85 tahun</option>
+</select>
+</div>
+<div class="calc-control-group">
+<label>Jenis Manfaat</label>
+<select id="benefitType" onchange="calculate()">
+<option value="inap">Rawat Inap</option>
+<option value="jalan">Rawat Jalan</option>
+<option value="gigi" id="optGigi">Rawat Gigi</option>
+</select>
+</div>
+</div>
+
+<!-- Calculator Results -->
+<div id="calcResults"></div>
+
+<!-- Info Box -->
+<div class="calc-info-box">
+<h4>No-Claim BONUS</h4>
+<p>Setahun tanpa klaim? LIMIT tahunan kartu Anda naik 10% per tahun hingga 50%</p>
+<h4 style="margin-top:10px">No-Claim DISCOUNT</h4>
+<p>Setahun tanpa klaim? Dapatkan DISCOUNT 10% di tahun berikutnya, hingga 15%</p>
+</div>
+</div>
+</div>
+
+<!-- Tab 4: Cara Klaim -->
+<div class="tab-content" id="tab-klaim" role="tabpanel">
+<div class="card">
+<h2>Cara Klaim MiUHC</h2>
+
+<h3>1. Cashless (Tanpa Bayar di Muka)</h3>
+<div class="info-box">
+<p>Cara paling mudah! Cukup tunjukkan kartu MiUHC atau eCard digital dari aplikasi Manulife ID di Rumah Sakit Rekanan.</p>
+</div>
+<ol>
+<li>Datang ke RS Rekanan Manulife</li>
+<li>Tunjukkan kartu MiUHC / eCard di bagian pendaftaran</li>
+<li>RS akan menghubungi Manulife untuk verifikasi</li>
+<li>Jika disetujui, Anda langsung dapat perawatan tanpa bayar di muka</li>
+<li>Cukup tandatangan Form Klaim dari RS</li>
+</ol>
+
+<h3>2. Reimbursement (Bayar Dulu, Klaim Kemudian)</h3>
+<ol>
+<li>Bayar biaya perawatan di RS/klinik</li>
+<li>Kumpulkan dokumen: kuitansi asli, resume medis, hasil lab, copy kartu peserta</li>
+<li>Kirim dokumen ke Manulife dalam 30 hari setelah perawatan</li>
+<li>Manulife akan memproses dan mentransfer penggantian ke rekening Anda</li>
+</ol>
+
+<h3>Kontak Klaim Manulife</h3>
+<div class="highlight-box">
+<p><strong>Customer Service:</strong> 021-2555-7777</p>
+<p><strong>Email:</strong> customer_id@manulife.com</p>
+<p><strong>Hotline 24 Jam (Darurat):</strong> 021-2555-7788</p>
+</div>
+
+<h3>Halodoc (Telemedicine)</h3>
+<p>Sebagai nasabah MiUHC, Anda bisa konsultasi dokter online melalui Halodoc. Registrasi melalui link khusus dari Manulife.</p>
+</div>
+</div>
+
+<!-- Tab 5: RS Rekanan -->
+<div class="tab-content" id="tab-rs" role="tabpanel">
+<div class="card">
+<h2>Rumah Sakit Rekanan</h2>
+<p>Manulife memiliki jaringan <strong>1000+ rumah sakit rekanan</strong> di seluruh Indonesia dan dunia.</p>
+
+<h3>Keuntungan RS Rekanan</h3>
+<ul>
+<li>Layanan <strong>Cashless</strong> - tanpa bayar di muka</li>
+<li>Proses klaim langsung ditangani RS dan Manulife</li>
+<li>Akses ke rumah sakit berkualitas di seluruh dunia</li>
+</ul>
+
+<h3>Preferred Hospital</h3>
+<p>Manulife memiliki daftar <strong>Preferred Hospital</strong> yang memberikan layanan direct billing untuk perawatan internasional. RS-RS terbaik di Asia dan dunia tersedia untuk plan Diamond, Ruby, dan Emerald.</p>
+
+<h3>Cara Cek RS Rekanan</h3>
+<ol>
+<li><strong>Aplikasi Manulife ID</strong> - Download di Play Store/App Store, cek daftar RS rekanan dan akses eCard digital</li>
+<li><strong>Website Manulife</strong> - Kunjungi manulife.co.id untuk daftar RS rekanan lengkap</li>
+<li><strong>Customer Service</strong> - Hubungi 021-2555-7777</li>
+</ol>
+
+<div class="info-box">
+<p><strong>Tips:</strong> Simpan aplikasi Manulife ID di HP Anda. eCard digital bisa langsung digunakan di RS rekanan tanpa perlu bawa kartu fisik!</p>
+</div>
+</div>
+</div>
+
+<!-- Tab 6: Layanan Medix -->
+<div class="tab-content" id="tab-medix" role="tabpanel">
+<div class="card">
+<h2>Layanan Medix</h2>
+<p><strong>Medix</strong> adalah layanan personal medical case management yang diberikan <strong>GRATIS</strong> untuk semua nasabah Manulife.</p>
+
+<h3>Apa itu Medix?</h3>
+<ul>
+<li>Tim medis profesional yang membantu Anda mendapat perawatan terbaik</li>
+<li>Second opinion dari dokter spesialis top dunia</li>
+<li>Koordinasi perawatan dan rujukan ke RS terbaik</li>
+<li>Pendampingan selama proses pengobatan</li>
+<li>Layanan ini <strong>GRATIS</strong> untuk semua pemegang polis Manulife</li>
+</ul>
+
+<h3>Video Penjelasan Medix</h3>
+<div class="highlight-box">
+<p>Tonton video penjelasan Medix: <a href="https://youtu.be/TtF0DDeyVLY?si=Q36Yb3HBTrJ7F-Yy" target="_blank">https://youtu.be/TtF0DDeyVLY?si=Q36Yb3HBTrJ7F-Yy</a></p>
+</div>
+
+<h3>Cara Request Layanan Medix</h3>
+<p>Kirim email ke: <strong>medical_support@manulife.com</strong></p>
+<p>Sertakan data berikut:</p>
+<ol>
+<li>Nama Nasabah</li>
+<li>Nomor Polis</li>
+<li>Nomor KTP dan Tanggal Lahir</li>
+<li>Nomor Telepon yang bisa dihubungi</li>
+<li>Kondisi Medis / Diagnosis yang ingin dikonsultasikan</li>
+</ol>
+
+<h3>Kontak Follow-up</h3>
+<div class="info-box">
+<p><strong>Ibu Hanny:</strong> 0811-7333-129 (untuk follow-up setelah kirim email)</p>
+</div>
+</div>
+</div>
+
+<!-- Tab 7: FAQ -->
+<div class="tab-content" id="tab-faq" role="tabpanel">
+<div class="card">
+<h2>Pertanyaan yang Sering Ditanya (FAQ)</h2>
+
+<div class="faq-item">
+<div class="faq-question" aria-expanded="false">Apa itu MiUHC?</div>
+<div class="faq-answer"><p>MiUHC (Mi Ultimate Healthcare) adalah asuransi kesehatan individu dari Manulife Indonesia. Produk ini memberikan perlindungan rawat inap sesuai tagihan (as charged) tanpa sub-limit, artinya semua biaya perawatan di rumah sakit ditanggung sesuai tagihan yang dikeluarkan RS (selama masih dalam limit plan).</p></div>
+</div>
+
+<div class="faq-item">
+<div class="faq-question" aria-expanded="false">Apa bedanya Konvensional vs Syariah?</div>
+<div class="faq-answer"><p><strong>Konvensional:</strong> Berbasis premi asuransi biasa. Dana premi dikelola oleh Manulife.<br><strong>Syariah:</strong> Berbasis kontribusi dan tabarru (dana kebajikan). Dikelola sesuai prinsip syariah dengan akad tolong-menolong. MiUHC Syariah juga memiliki tambahan manfaat Rawat Gigi yang tidak tersedia di versi Konvensional.</p></div>
+</div>
+
+<div class="faq-item">
+<div class="faq-question" aria-expanded="false">Berapa usia masuk MiUHC?</div>
+<div class="faq-answer"><p>Usia masuk MiUHC adalah <strong>30 hari sampai 85 tahun</strong>. Setelah menjadi nasabah, polis dapat di-renew (diperpanjang) seumur hidup tanpa batas usia maksimal.</p></div>
+</div>
+
+<div class="faq-item">
+<div class="faq-question" aria-expanded="false">Apa itu Deductible (Smart Plan)?</div>
+<div class="faq-answer"><p>Deductible adalah biaya yang harus ditanggung sendiri oleh nasabah sebelum manfaat asuransi mulai berlaku. Misalnya, jika deductible Rp5 juta dan tagihan RS Rp20 juta, maka Rp5 juta pertama Anda bayar sendiri dan Rp15 juta sisanya ditanggung asuransi. Keuntungannya: premi Smart Plan bisa <strong>hemat sekitar 40%</strong> dibanding plan reguler. Cocok untuk yang sudah punya asuransi dari kantor sebagai pelengkap.</p></div>
+</div>
+
+<div class="faq-item">
+<div class="faq-question" aria-expanded="false">Apa itu No-Claim Bonus?</div>
+<div class="faq-answer"><p>No-Claim Bonus adalah reward untuk nasabah yang tidak melakukan klaim dalam 1 tahun polis. <strong>Limit tahunan kartu Anda akan naik 10% per tahun</strong>, dan bisa terus naik hingga maksimal 50% dari limit awal. Contoh: Plan Jade ID dengan limit 10M, setelah 5 tahun tanpa klaim limitnya bisa naik menjadi 15M!</p></div>
+</div>
+
+<div class="faq-item">
+<div class="faq-question" aria-expanded="false">Apa itu No-Claim Discount?</div>
+<div class="faq-answer"><p>No-Claim Discount adalah diskon premi untuk nasabah yang tidak melakukan klaim. Anda mendapat <strong>diskon 10% dari premi tahun berikutnya</strong> jika tidak ada klaim, dengan maksimal akumulasi diskon 15%. Jadi premi Anda bisa semakin murah setiap tahun!</p></div>
+</div>
+
+<div class="faq-item">
+<div class="faq-question" aria-expanded="false">Bagaimana cara klaim MiUHC?</div>
+<div class="faq-answer"><p>Ada 2 cara klaim:<br><strong>1. Cashless:</strong> Langsung tunjukkan kartu MiUHC/eCard di RS Rekanan Manulife. Tidak perlu bayar di muka.<br><strong>2. Reimbursement:</strong> Bayar dulu biaya perawatan, kumpulkan dokumen (kuitansi asli, resume medis, dll), lalu kirim ke Manulife untuk penggantian.</p></div>
+</div>
+
+<div class="faq-item">
+<div class="faq-question" aria-expanded="false">Apa saja pengecualian MiUHC?</div>
+<div class="faq-answer"><p>Beberapa pengecualian umum:<br>- Pre-existing conditions (penyakit yang sudah ada sebelum polis aktif) - masa tunggu 12 bulan<br>- Perawatan kosmetik/estetika<br>- Perawatan gigi (kecuali MiUHC Syariah dengan rider gigi)<br>- Perawatan akibat olahraga berbahaya<br>- Kondisi yang sudah ada sebelum polis dimulai perlu masa tunggu</p></div>
+</div>
+
+<div class="faq-item">
+<div class="faq-question" aria-expanded="false">Berapa masa tunggu MiUHC?</div>
+<div class="faq-answer"><p><strong>30 hari</strong> - Masa tunggu untuk penyakit umum (setelah polis aktif, perlu tunggu 30 hari sebelum bisa klaim)<br><strong>12 bulan</strong> - Masa tunggu untuk penyakit khusus tertentu seperti: hernia, amandel, adenoid, hemoroid/wasir, katarak, batu ginjal/saluran kemih, gangguan reproduksi, dan kondisi pre-existing lainnya.</p></div>
+</div>
+
+</div>
+</div>
+
+<!-- Floating WA Button -->
+<a href="https://wa.me/6287781896087?text=Pak%20Petrus%2C%20saya%20mau%20tanya%20soal%20Asuransi%20Kesehatan%20MiUHC" target="_blank" class="floating-wa" aria-label="WhatsApp">
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+<div class="wa-tooltip">Petrus Jakub - 087781896087</div>
+
+<script>
+// Tab Navigation
+(function(){
+var tabs = document.querySelectorAll('.tabs li');
+var contents = document.querySelectorAll('.tab-content');
+tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+        tabs.forEach(function(t){ t.classList.remove('active'); });
+        contents.forEach(function(c){ c.classList.remove('active'); });
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.getAttribute('data-tab')).classList.add('active');
+    });
+});
+})();
+
+// FAQ Accordion
+(function(){
+var questions = document.querySelectorAll('.faq-question');
+questions.forEach(function(q){
+    q.addEventListener('click', function(){
+        var item = q.parentElement;
+        item.classList.toggle('open');
+        q.setAttribute('aria-expanded', item.classList.contains('open') ? 'true' : 'false');
+    });
+});
+})();
+
+// ============ KALKULATOR PREMI ============
+(function(){
+const DATA_KONV = {"PRIA":{"0":[47658100,32451400,18274400,13435500,10466200,10335000,8140600,6366300,28594900,19470800,10964600,8061300,6803000,6201000,5291400],"1":[46755600,31579600,17431700,12409800,9667100,9546000,7519100,5880300,28053400,18947800,10459000,7445900,6283600,5727600,4887400],"2":[46739200,31563300,17416300,12391100,9652500,9531600,7507800,5871500,28043500,18938000,10449800,7434700,6274100,5719000,4880100],"3":[37646000,25444200,14069300,10057200,7834400,7736200,6093600,4765500,22587600,15266500,8441600,6034300,5092400,4641700,3960800],"4":[37636100,25434300,14059700,10049200,7828200,7730200,6088800,4761700,22581700,15260600,8435800,6029500,5088300,4638100,3957700],"5":[37629400,25430900,14056600,10041400,7840300,7724200,6087800,4758000,22577600,15258500,8434000,6024800,5096200,4634500,3957100],"6":[37759100,25517600,14099200,10071800,7894100,7747600,6106400,4772500,22655500,15310600,8459500,6043100,5131200,4648600,3969200],"7":[37764700,25521800,14103200,10073800,7899800,7749500,6111600,4773700,22658800,15313100,8461900,6044300,5134900,4649700,3972500],"8":[37770300,25525900,14107100,10075700,7905500,7751300,6115200,4774800,22662200,15315500,8464300,6045400,5138600,4650800,3974900],"9":[37775900,25530100,14111100,10077800,7911100,7753200,6118800,4775900,22665500,15318100,8466700,6046700,5142200,4651900,3977200],"10":[37781500,25534200,14115000,10079800,7916800,7755100,6122400,4777100,22668900,15320500,8469000,6047900,5145900,4653100,3979600],"11":[37788800,25540000,14119100,10082700,7934600,7757000,6133200,4778300,22673300,15324000,8471500,6049600,5157500,4654200,3986600],"12":[37796200,25545900,14123000,10085600,7953100,7758900,6158500,4779400,22677700,15327500,8473800,6051400,5169500,4655300,4003000],"13":[37803500,25551800,14127000,10088600,7954100,7760800,6184100,4780600,22682100,15331100,8476200,6053200,5170200,4656500,4019700],"14":[37810800,25557600,14130900,10091500,7958200,7762700,6212000,4781700,22686500,15334600,8478500,6054900,5172800,4657600,4037800],"15":[37837500,25575300,14144100,10098300,7966200,7768000,6241500,4785000,22702500,15345200,8486500,6059000,5178000,4660800,4057000],"16":[38112800,25598200,14148000,10105300,8313500,8135600,6437100,4788400,22867700,15358900,8488800,6063200,5403800,4881400,4184100],"17":[38388100,25686800,14160500,10113300,8328000,8149800,6442000,4792000,23032900,15412100,8496300,6068000,5413200,4889900,4187300],"18":[38663300,25701200,14173600,10127700,8340100,8161600,6445000,4799000,23198000,15420700,8504200,6076600,5421100,4897000,4189300],"19":[38938600,26509600,14381100,10150600,8412000,8231900,6566700,4804400,23363200,15905800,8628700,6090400,5467800,4939100,4268400],"20":[39213900,26546500,15034800,10187400,8454400,8273400,6616300,4813500,23528300,15927900,9020900,6112400,5495400,4964000,4300600],"21":[39489100,28616300,15688500,11409300,9376200,9175500,7403600,5504600,23693500,17169800,9413100,6845600,6094500,5505300,4812300],"22":[39603500,28989600,15773500,11450900,9410100,9208800,7433600,5524500,23762100,17393800,9464100,6870500,6116600,5525300,4831800],"23":[40859300,29362900,16199600,11528000,9473500,9270800,7471600,5710900,24515600,17617700,9719800,6916800,6157800,5562500,4856500],"24":[41601600,29860500,16524700,11553400,9494500,9291200,7572000,5723400,24961000,17916300,9914800,6932000,6171400,5574700,4921800],"25":[42434600,30908300,16563200,11683300,9601300,9395800,7774500,5787600,25460800,18545000,9937900,7010000,6240800,5637500,5053400],"26":[42495800,31048800,17292100,11688200,9605200,9399700,7875800,5790300,25497500,18629300,10375300,7012900,6243400,5639800,5119300],"27":[42745100,31189300,17310000,11760400,9664600,9457700,8056600,5826000,25647100,18713600,10386000,7056200,6282000,5674600,5236800],"28":[42970500,31225000,17483100,11819700,9713300,9505400,8229400,5855200,25782300,18735000,10489900,7091800,6313600,5703200,5349100],"29":[43240400,31260800,17657900,11894000,9955500,9565000,8415700,5994600,25944200,18756500,10594700,7136400,6471100,5739000,5470200],"30":[43284600,31296600,17834500,11899100,10033000,9569300,8555000,6150800,25970800,18778000,10700700,7139500,6521500,5741600,5560800],"31":[43328800,31561300,18944800,12600100,10597600,9608800,8653500,6176400,25997300,18936800,11366900,7560100,6888400,5765300,5624800],"32":[44021300,31663500,19245200,12899200,10864300,9758100,8869400,6272300,26412800,18998100,11547100,7739500,7061800,5854900,5765100],"33":[44156400,31765800,19305300,13253200,11147500,9788400,8921900,6291800,26493800,19059500,11583200,7951900,7245900,5873000,5799200],"34":[44668600,31867900,19512300,13553900,11466000,9889400,8966800,6356800,26801200,19120700,11707400,8132300,7452900,5933600,5828400],"35":[44843600,32242000,19574800,13613900,11759100,9921000,9035800,6377100,26906200,19345200,11744900,8168300,7643400,5952600,5873300],"36":[45773500,33620000,19644800,14014000,12279900,9955300,9072000,6399100,27464100,20172000,11786900,8408400,7981900,5973200,5896800],"37":[46923100,33883800,19788700,14279300,12722300,10027800,9180000,6445800,28153900,20330300,11873200,8567600,8269500,6016700,5967000],"38":[49037300,35398200,20662800,14580200,13200100,10190100,9447600,6566300,29422400,21238900,12397700,8748100,8580100,6114100,6046500],"39":[50130200,36799600,21472600,15146400,13713100,10586900,9676800,6838300,30078100,22079800,12883600,9087800,8913500,6352100,6289900],"40":[51238700,38263200,21831700,15582200,14003200,11298600,10210000,7107600,30743200,22957900,13099000,9349300,9102100,6779200,6636500],"41":[53425500,39916500,23308000,16738800,14916400,11799200,10701200,7405000,32055300,23949900,13984800,10043300,9695700,7079500,6955800],"42":[55553100,41498100,24222100,17676700,15606400,12261900,11137100,7713300,33331900,24898900,14533300,10606000,10144200,7357100,7239100],"43":[57773000,43151000,25180000,18685300,16367200,12745300,11540000,8017500,34663800,25890600,15108000,11211200,10638700,7647200,7501000],"44":[61435000,45874200,26751200,19617600,16885000,13536100,12232100,8353700,36861000,27524500,16050700,11770600,10975300,8121700,7950900],"45":[65336400,48774900,27597200,20826100,17445600,14381700,13037500,8875700,39201800,29264900,16558300,12495700,11339600,8629000,8474400],"46":[69764700,52988500,30574700,22069800,18290500,15390100,13960700,9406300,41858800,31793100,18344800,13241900,11888800,9234100,9074500],"47":[75487400,56802800,32050100,23586600,19676200,16357000,14870000,10070300,45292400,34081700,19230100,14152000,12789500,9814200,9665500],"48":[80289700,59918000,34116100,24665900,21233300,17389500,15773200,10705900,48173800,35950800,20469700,14799500,13801600,10433700,10252600],"49":[85406900,62681900,36598700,25763000,22507300,18494400,16767500,11386300,51244100,37609100,21959200,15457800,14629700,11096600,10898900],"50":[89312600,66683900,39345900,26254800,23048800,20367200,18399700,12117600,53587600,40010300,23607500,15752900,14981700,12220300,11959800],"51":[95957500,71685900,42228600,27920600,24607900,22109000,19970600,12886400,57574500,43011500,25337200,16752400,15995100,13265400,12980900],"52":[102764400,76758600,45139400,28790200,25528700,23672800,21250900,13865600,61658600,46055200,27083600,17274100,16593700,14203700,13813100],"53":[110054700,82193100,47993600,30818700,27385000,25340900,22547200,14842500,66032800,49315900,28796200,18491200,17800300,15204500,14655700],"54":[117865000,87276400,50728900,32988000,29355300,27123400,24020500,15887100,70719000,52365800,30437300,19792800,19080900,16274000,15613300],"55":[126224300,90308500,53304900,35301800,31764500,28939700,25535000,17001600,75734600,54185100,31982900,21181100,20646900,17363800,16597800],"56":[133131500,94432200,55094800,37737300,34056500,30662000,27071000,18219000,79878900,56659300,33056900,22642400,22136700,18397200,17596200],"57":[138613600,99237900,56884500,39162100,35538800,31457700,27856800,19560100,83168200,59542700,34130700,23497300,23100200,18874600,18106900],"58":[144418200,105185700,57862400,39873500,36177300,32029100,28480300,20064400,86650900,63111400,34717400,23924100,23515200,19217500,18512200],"59":[152439700,106586000,60137300,41029400,37513300,33482400,29749900,20287000,91463800,63951600,36082400,24617600,24383600,20089400,19337400],"60":[160461200,111704100,62412400,42709500,38751600,34450400,30885300,20372600,96276700,67022500,37447400,25625700,25188500,20670200,20075400],"61":[168482700,117710400,66630300,45842800,41156800,35827800,32427200,21216400,101089600,70626200,39978200,27505700,26751900,21496700,21077700],"62":[174879000,123716800,70848200,47469500,41882800,37377600,33899800,22139000,104927400,74230100,42508900,28481700,27223800,22426600,22034900],"63":[180052000,126523700,72564200,49879800,43759300,38369200,34855700,22918600,108031200,75914200,43538500,29927900,28443500,23021500,22656200],"64":[184103000,131971400,75452800,52064100,45566500,39145900,35567400,23557500,110461800,79182800,45271700,31238500,29618200,23487500,23118800],"65":[193867000,137419300,80806300,54317900,47193100,42041700,38137800,24504300,116320200,82451600,48483800,32590700,30675500,25225000,24789600],"66":[207048800,146975700,86116200,58452200,51331400,44893600,40793100,26369500,124229300,88185400,51669700,35071300,33365400,26936200,26515500],"67":[225738400,160367800,89239800,62842800,55912600,49231100,44687300,27695800,135443000,96220700,53543900,37705700,36343200,29538700,29046700],"68":[233901000,165825500,92363300,66241600,59307000,53652600,48580100,29930700,140340600,99495300,55418000,39745000,38549600,32191600,31577100],"69":[242063700,171283400,95486700,69921200,62796900,55506800,50430000,31531800,145238200,102770000,57292000,41952700,40818000,33304100,32779500],"70":[250226600,176741200,98610200,73047500,65935400,58828800,53434100,33132700,150136000,106044700,59166100,43828500,42858000,35297300,34732200],"71":[258389300,182198900,101733700,74186600,67564000,60888000,55343100,34733700,155033600,109319300,61040200,44512000,43916600,36532800,35973000],"72":[262611400,184546700,104857100,78473000,71584600,62947100,57180600,36334700,157566800,110728000,62914300,47083800,46530000,37768300,37167400],"73":[265337100,189539600,108155200,81418400,74376200,65006300,59009600,37935700,159202300,113723800,64893100,48851000,48344500,39003800,38356200],"74":[270292700,192455900,113309600,85832500,77959700,67065500,60871300,40258300,162175600,115473500,67985800,51499500,50673800,40239300,39566300],"75":[275402600,196462600,117850100,89861900,81151400,69124600,62666900,42580700,165241600,117877600,70710100,53917100,52748400,41474800,40733500],"76":[281356500,201640500,119302400,91638700,83646300,70491200,63846700,43422600,168813900,120984300,71581400,54983200,54370100,42294700,41500400],"77":[292570500,206818400,121003600,93701200,84625300,72077800,65242900,44173400,175542300,124091000,72602200,56220700,55006400,43246700,42407900],"78":[303784500,215715000,123822500,96760200,87956300,74430900,67308300,45615600,182270700,129429000,74293500,58056100,57171600,44658500,43750400],"79":[314998500,224611500,126030100,99456600,90199100,76505100,69137800,46777400,188999100,134766900,75618100,59674000,58629400,45903100,44939600],"80":[326212500,233508000,130724800,103161600,93688100,79355000,71680400,48066500,195727500,140104800,78434900,61897000,60897300,47613000,46592300],"81":[339346200,242404500,138685100,109715200,98389600,84396300,76224000,51060200,203607700,145442700,83211100,65829100,63953200,50637800,49545600],"82":[348640400,251301000,146645300,116268700,103091200,89437400,80767300,54054000,209184200,150780600,87987200,69761200,67009300,53662400,52498700],"83":[360749600,260127800,154605600,122822200,107792700,94478500,85310800,57047900,216449800,156076700,92763400,73693300,70065300,56687100,55452000],"84":[374777500,268954800,162565800,129375700,112494300,99519700,89854200,60041600,224866500,161372900,97539500,77625400,73121300,59711800,58405200],"85":[385185000,277642400,170526000,135929200,117195800,104560800,94397700,63035400,231111000,166585400,102315600,81557500,76177300,62736500,61358500]},"WANITA":{"0":[46106700,32345900,18643400,13465300,10447600,10357900,8317300,6380500,27664000,19407500,11186000,8079200,6790900,6214700,5406200],"1":[45692900,31941500,18239300,12973500,10066100,9979600,8013500,6147600,27415700,19164900,10943600,7784100,6543000,5987800,5208800],"2":[45686600,31929000,18223100,12953600,10050500,9964200,8001300,6138000,27412000,19157400,10933900,7772200,6532800,5978500,5200800],"3":[35560200,24879200,14241400,10181500,7899700,7831800,6289000,4915100,21336100,14927500,8544800,6108900,5134800,4699100,4087900],"4":[35557000,24875600,14237800,10178000,7914400,7829100,6290100,4915100,21334200,14925400,8542700,6106800,5144400,4697500,4088600],"5":[35560200,24875600,14237800,10178000,7983500,7829100,6319800,4963500,21336100,14925400,8542700,6106800,5189300,4697500,4107900],"6":[35686700,24967000,14291200,10217000,8059700,7859400,6397200,5011900,21412000,14980200,8574700,6130200,5238800,4715600,4158200],"7":[35691300,24970700,14294100,10218500,8091400,7860900,6466500,5060300,21414800,14982400,8576500,6131100,5259400,4716500,4203200],"8":[35695900,24974500,14297000,10220000,8136100,7862400,6478300,5108800,21417500,14984700,8578200,6132000,5288500,4717400,4210900],"9":[35700400,24978200,14299800,10221600,8180500,7864000,6506300,5157200,21420200,14986900,8579900,6133000,5317300,4718400,4229100],"10":[35705000,24982000,14302700,10223000,8205900,7865500,6535100,5205500,21423000,14989200,8581600,6133800,5333800,4719300,4247800],"11":[35710400,24986600,14306500,10225600,8226400,7867000,6575700,5253900,21426200,14992000,8583900,6135400,5347200,4720200,4274200],"12":[35715900,24991300,14310200,10228100,8238900,7868600,6647200,5302300,21429500,14994800,8586100,6136900,5355300,4721200,4320700],"13":[35721300,24996000,14314000,10230600,8252700,7870100,6715500,5350700,21432800,14997600,8588400,6138400,5364300,4722100,4365100],"14":[35726800,25000800,14317900,10233100,8266600,7871600,6783300,5399200,21436100,15000500,8590700,6139900,5373300,4723000,4409100],"15":[35748600,25014800,14324600,10236100,8280500,7873900,6881700,5447600,21449200,15008900,8594800,6141700,5382300,4724300,4473100],"16":[38971000,27042200,15095100,10601100,8666300,8583900,7575000,5496000,23382600,16225300,9057100,6360700,5633100,5150300,4923800],"17":[39022300,27077000,15634000,10611300,8775100,8592200,7654500,5544300,23413400,16246200,9380400,6366800,5703800,5155300,4975400],"18":[39050400,27323400,15644700,10618800,8854400,8598100,7714700,5592700,23430200,16394000,9386800,6371300,5755400,5158900,5014600],"19":[39104100,27464300,15680200,10682600,8991600,8607600,7809600,5641100,23462500,16478600,9408100,6409600,5844500,5164600,5076200],"20":[39767800,27596500,15801700,10716800,9093200,8754500,7980600,5689600,23860700,16557900,9481000,6430100,5910600,5252700,5187400],"21":[43225700,31455900,17672800,11826200,10162200,9340800,8554800,5738000,25935400,18873500,10603700,7095700,6605400,5604500,5560600],"22":[44168200,31866700,18017700,11857700,10286300,9536000,8738100,5857700,26500900,19120000,10810600,7114600,6686100,5721600,5679800],"23":[44868800,32097400,18314000,11934400,10498700,9685800,8864500,6018300,26921300,19258400,10988400,7160600,6824200,5811500,5761900],"24":[45388000,32471900,18537200,11963300,10690000,9799100,8942200,6088800,27232800,19483100,11122300,7178000,6948500,5879500,5812400],"25":[46153200,32895200,18822800,11999600,10835400,10014000,9168700,6151400,27691900,19737100,11293700,7199800,7043000,6008400,5959700],"26":[46171400,33314300,19748600,12606200,11480700,10137700,9262000,6244900,27702800,19988600,11849200,7563700,7462500,6082600,6020300],"27":[46937300,33708200,19902800,12812500,11672000,10303800,9412600,6347200,28162400,20224900,11941700,7687500,7586800,6182300,6118200],"28":[47684800,34098500,20057100,13017200,11881000,10468300,9579000,6448500,28610900,20459100,12034300,7810300,7722700,6281000,6130600],"29":[48636900,34759000,20267400,13476500,12287400,10837700,9789700,6678800,29182100,20855400,12160400,8085900,7986800,6502600,6265400],"30":[48728000,34987700,20270300,13481200,12319100,10841500,10000400,6968800,29236800,20992600,12162200,8088700,8007400,6504900,6400300],"31":[49026800,35729300,20874400,13530200,12447800,10860000,10078900,7052400,29416100,21437600,12524600,8118100,8091100,6516000,6450500],"32":[50036000,36315200,21377600,13746800,12576500,10870800,10116600,7165200,30021600,21789100,12826600,8248100,8174700,6522500,6474600],"33":[54341100,37899300,21955500,14398800,13113900,11327800,10508100,7310100,32604700,22739600,13173300,8639300,8524000,6796700,6725200],"34":[55065600,38923700,22484200,15608700,14258200,12006600,11080000,8068400,33039400,23354200,13490500,9365200,9267800,7204000,7091200],"35":[56293300,40422000,23099300,15661500,14329200,12047300,11126300,8095700,33776000,24253200,13859600,9396900,9314000,7228400,7120800],"36":[60638300,41543500,24210000,15776900,14380400,12356700,11325400,8155400,36383000,24926100,14526000,9466100,9347300,7414000,7248300],"37":[61119700,43690400,24391700,15891300,14401500,12446300,11619100,8214800,36671800,26214200,14635000,9534800,9361000,7467800,7436200],"38":[64244200,45909700,25612200,16597700,14997500,13061800,12216100,8356800,38546500,27545800,15367300,9958600,9748400,7837100,7818300],"39":[67180200,47195700,25783100,17415700,15940600,13640300,12467800,8768600,40308100,28317400,15469900,10449400,10361400,8184200,8104100],"40":[69513000,47882700,26825100,18089700,16470500,14547700,13096700,9151500,41707800,28729600,16095100,10853800,10705800,8728600,8512900],"41":[69812800,50759100,29290000,18892800,16830200,15193600,13652000,9671100,41887700,30455500,17574000,11335700,10939600,9116200,8873800],"42":[72589300,51867600,30438600,19631000,17148000,15787200,14119600,9931300,43553600,31120600,18263200,11778600,11146200,9472300,9177700],"43":[77220900,53717200,31805100,20548300,17679500,16764400,14816300,10346000,46332500,32230300,19083100,12329000,11491700,10058600,9630600],"44":[79920000,56049600,32452600,21567500,18383600,17344400,15438200,10807400,47952000,33629800,19471600,12940500,11949300,10406600,10034800],"45":[82715400,58553700,32844600,22314900,19124600,17945600,16065400,11342500,49629200,35132200,19706800,13388900,12431000,10767400,10442500],"46":[89536000,59171300,35666400,23182100,19860200,18642800,16674700,11755500,53721600,35502800,21399800,13909300,12909100,11185700,10838600],"47":[94216600,62342200,36905500,23993900,20543500,19295900,17414800,12224800,56530000,37405300,22143300,14396300,13353300,11577500,11319600],"48":[97522400,65666800,38194100,24835400,21887700,19972500,18080200,12653300,58513400,39400100,22916500,14901200,14227000,11983500,11752100],"49":[100949200,70926500,38950500,25710900,23309400,20676700,18856700,13099500,60569500,42555900,23370300,15426500,15151100,12406000,12256900],"50":[104497500,73421600,40918600,27105300,24206100,21408800,19402300,13531300,62698500,44053000,24551200,16263200,15734000,12845300,12611500],"51":[112838800,78693900,43177300,29344300,25568100,22986100,20798700,14244000,67703300,47216300,25906400,17606600,16619300,13791700,13519200],"52":[118678600,82758700,45397400,31013000,26610400,24177000,21846200,15177500,71207200,49655200,27238400,18607800,17296800,14506200,14200000],"53":[124831200,85620500,47744600,32626200,27876400,25434500,22804100,15577500,74898700,51372300,28646800,19575700,18119700,15260700,14822700],"54":[131308700,90056100,49792500,33737400,28849500,26762300,23989300,16390800,78785200,54033700,29875500,20242400,18752200,16057400,15593000],"55":[138114500,93140700,50779900,35487100,30974500,27669000,24830200,17240600,82868700,55884400,30467900,21292300,20133400,16601400,16139600],"56":[145521600,99827200,52749500,37252200,32750300,29184800,26047800,18098200,87313000,59896300,31649700,22351300,21287700,17510900,16931100],"57":[148831800,102120400,54035600,38531100,34532300,30679200,27243100,19120600,89299100,61272200,32421400,23118700,22446000,18407500,17708000],"58":[151064700,103675600,54917600,39169600,35241400,31187700,27926500,19537400,90638800,62205400,32950600,23501800,22906900,18712600,18152200],"59":[152220500,104495600,55397200,39538900,35790200,32391500,29196300,19721400,91332300,62697400,33238300,23723300,23263600,19434900,18977600],"60":[156689000,104581800,55477300,39640900,37680500,32408000,29325100,19772300,94013400,62749100,33286400,23784500,23550300,19444800,19061300],"61":[161157500,106488000,59662400,44390100,39570900,33326600,30213100,20424300,96694500,63892800,35797400,26634100,25721100,19996000,19638500],"62":[163552700,108106500,63153200,45899400,40147400,33917100,30687000,21406700,98131600,64863900,37891900,27539600,26095800,20350300,19946600],"63":[167114500,110511200,66182300,48171800,41677900,34774900,31635000,21836200,100268700,66306700,39709400,28903100,27090600,20864900,20562800],"64":[174102500,112195400,68852000,50201300,42955800,35422700,32095500,22357100,104461500,67317200,41311200,30120800,27921300,21253600,20862100],"65":[181090900,119874600,74779500,52530200,44461800,37969800,34245700,22786400,108654500,71924800,44867700,31518100,28900200,22781900,22259700],"66":[193320000,128137400,77171900,56172500,47063000,40801600,36316700,24366300,115992000,76882400,46303100,33703500,30591000,24481000,23605900],"67":[203393700,139723100,83614200,59980300,49813500,44662200,39910400,26214200,122036200,83833900,50168500,35988200,32378800,26797300,25941800],"68":[213467300,151401600,90749100,63766000,53357100,48603100,43528500,28740800,128080400,90841000,54449500,38259600,34682100,29161900,28293500],"69":[223541000,155581700,93433400,66853800,56442200,50191900,45088700,31296400,134124600,93349000,56060000,40112300,36687400,30115100,29307700],"70":[233614800,163600900,96885600,69974700,60205000,53040000,47470900,32296100,140168900,98160500,58131400,41984800,39133300,31824000,30856100],"71":[243688600,166747400,98178100,70789600,61093100,55242700,49539800,32672100,146213200,100048400,58906900,42473800,39710500,33145600,32200900],"72":[249687600,169893800,100931600,74107700,64220800,57006000,51209800,34692100,149812600,101936300,60559000,44464600,41743500,34203600,33286400],"73":[259489000,178152000,103770800,76504000,66069900,58849100,53001400,35813900,155693400,106891200,62262500,45902400,42945400,35309500,34450900],"74":[263946900,184139800,108361200,80246700,69082200,61728400,55658300,38024700,158368100,110483900,65016700,48148000,44903400,37037000,36177900],"75":[268504200,187598200,112297600,83562400,71783300,64278700,58068100,39595800,161102500,112558900,67378600,50137400,46659100,38567200,37744300],"76":[273803800,191865000,113208600,84671600,72609500,65131900,58928900,40121100,164282300,115119000,67925200,50803000,47196200,39079100,38303800],"77":[284082400,199756000,114219400,85902300,73299100,66078700,59857800,40704500,170449400,119853600,68531600,51541400,47644400,39647200,38907600],"78":[294360900,207647200,116123800,87850800,74355800,67577600,61304400,41627800,176616500,124588300,69674300,52710500,48331300,40546600,39847900],"79":[304639400,215538300,117349600,89343100,74419200,68725300,61829800,42335000,182783600,129323000,70409800,53605900,48372500,41235200,40189400],"80":[314917900,223429400,121578100,92562400,77056600,71201900,64116800,43128100,188950700,134057600,72946900,55537400,50086800,42721100,41675900],"81":[328892600,231367400,129085400,98278200,81528900,75598700,68176900,45791200,197335600,138820400,77451200,58966900,52993800,45359200,44315000],"82":[335474900,239211600,136592600,103994000,86001400,79995300,72237000,48454400,201284900,143527000,81955600,62396400,55900900,47997200,46954100],"83":[346722000,247149600,144099800,109709800,90473800,84392100,76297100,51117600,208033200,148289800,86459900,65825900,58808000,50635300,49593100],"84":[359475400,255087500,151607000,115425600,94946300,88788800,80357200,53780700,215685200,153052500,90964200,69255400,61715100,53273300,52232200],"85":[372388100,263119000,159114300,121141400,99418700,93185600,84417200,56444000,223432900,157871400,95468600,72684800,64622200,55911400,54871200]}};
+
+const DATA_SYARIAH = {"PRIA":{"0":[42551900,28974500,16316400,11996000,9344800,9227700,7268400,5684200,25531100,17384700,9789800,7197600,5536600],"1":[41746100,28196100,15564000,11080200,8631300,8523200,6713500,5250300,25047700,16917700,9338400,6648100,5113900],"2":[41731400,28181500,15550300,11063500,8618300,8510400,6703400,5242400,25038800,16908900,9330200,6638100,5106200],"3":[33612500,22718000,12561900,8979600,6995000,6907300,5440700,4254900,20167500,13630800,7537100,5387800,4144400],"4":[33603700,22709200,12553300,8972500,6989500,6902000,5436400,4251500,20162200,13625500,7532000,5383500,4141200],"5":[33597700,22706200,12550500,8965500,7000300,6896600,5435500,4248200,20158600,13623700,7530300,5379300,4138000],"6":[33713500,22783600,12588600,8992700,7048300,6917500,5452100,4261200,20228100,13670200,7553200,5395600,4150500],"7":[33718500,22787300,12592100,8994500,7053400,6919200,5456800,4262200,20231100,13672400,7555300,5396700,4151500],"8":[33723500,22791000,12595600,8996200,7058500,6920800,5460000,4263200,20234100,13674600,7557400,5397700,4152500],"9":[33728500,22794700,12599200,8998000,7063500,6922500,5463200,4264200,20237100,13676800,7559500,5398800,4153500],"10":[33733500,22798400,12602700,8999800,7068600,6924200,5466400,4265300,20240100,13679000,7561600,5399900,4154500],"11":[33740000,22803600,12606300,9002400,7084500,6925900,5476100,4266300,20244000,13682200,7563800,5401400,4155500],"12":[33746600,22808800,12609800,9005000,7101000,6927600,5498700,4267300,20248000,13685300,7565900,5403000,4156600],"13":[33753100,22814100,12613400,9007700,7101900,6929300,5521500,4268400,20251900,13688500,7568000,5404600,4157600],"14":[33759600,22819300,12616900,9010300,7105500,6931000,5546400,4269400,20255800,13691600,7570100,5406200,4158600],"15":[33783500,22835100,12628700,9016300,7112700,6935700,5572800,4272300,20270100,13701100,7577200,5409800,4161400],"16":[34029300,22855500,12632100,9022600,7422800,7263900,5747400,4275400,20417600,13713300,7579300,5413600,4358300],"17":[34275100,22934600,12643300,9029700,7435700,7276600,5751800,4278600,20565100,13760800,7586000,5417800,4366000],"18":[34520800,22947500,12655000,9042600,7446500,7287100,5754500,4284800,20712500,13768500,7593000,5425600,4372300],"19":[34766600,23669300,12840300,9063000,7510700,7349900,5863100,4289600,20860000,14201600,7704200,5437800,4409900],"20":[35012400,23702200,13423900,9095900,7548600,7387000,5907400,4297800,21007400,14221300,8054300,5457500,4432200],"21":[35258100,25550300,14007600,10186900,8371600,8192400,6610400,4914800,21154900,15330200,8404600,6112100,4915400],"22":[35360300,25883600,14083500,10224000,8401900,8222100,6637100,4932600,21216200,15530200,8450100,6134400,4933300],"23":[36481500,26216900,14463900,10292900,8458500,8277500,6671100,5099000,21888900,15730100,8678300,6175700,4966500],"24":[37144300,26661200,14754200,10315500,8477200,8295700,6760700,5110200,22286600,15996700,8852500,6189300,4977400],"25":[37888000,27596700,14788600,10431500,8572600,8389100,6941500,5167500,22732800,16558000,8873200,6258900,5033500],"26":[37942700,27722100,15439400,10435900,8576100,8392600,7032000,5169900,22765600,16633300,9263600,6261500,5035600],"27":[38165300,27847600,15455400,10500400,8629100,8444400,7193400,5201800,22899200,16708600,9273200,6300200,5066600],"28":[38366500,27879500,15609900,10553300,8672600,8487000,7347700,5227900,23019900,16727700,9365900,6332000,5092200],"29":[38607500,27911400,15766000,10619600,8888800,8540200,7514000,5352300,23164500,16746800,9459600,6371800,5124100],"30":[38647000,27943400,15923700,10624200,8958000,8544000,7638400,5491800,23188200,16766000,9554200,6374500,5126400],"31":[38686400,28179700,16915000,11250100,9462100,8579300,7726300,5514600,23211800,16907800,10149000,6750100,5147600],"32":[39304700,28271000,17183200,11517100,9700300,8712600,7919100,5600300,23582800,16962600,10309900,6910300,5227600],"33":[39425400,28362300,17236900,11833200,9953100,8739600,7966000,5617700,23655200,17017400,10342100,7099900,5243800],"34":[39882700,28453500,17421700,12101700,10237500,8829800,8006100,5675700,23929600,17072100,10453000,7261000,5297900],"35":[40038900,28787500,17477500,12155300,10499200,8858000,8067700,5693800,24023300,17272500,10486500,7293200,5314800],"36":[40869200,30017900,17540000,12512500,10964200,8888700,8100000,5713500,24521500,18010700,10524000,7507500,5333200],"37":[41895600,30253400,17668500,12749400,11359200,8953400,8196400,5755200,25137400,18152000,10601100,7649600,5372000],"38":[43783300,31605500,18448900,13018000,11785800,9098300,8435400,5862800,26270000,18963300,11069300,7810800,5459000],"39":[44759100,32856800,19172000,13523600,12243800,9452600,8640000,6105600,26855500,19714100,11503200,8114200,5671600],"40":[45748800,34163600,19492600,13912700,12502900,10088000,9116100,6346100,27449300,20498200,11695600,8347600,6052800],"41":[47701300,35639700,20810700,14945400,13318200,10535000,9554600,6611600,28620800,21383800,12486400,8967200,6321000],"42":[49601000,37051900,21626900,15782800,13934300,10948100,9943800,6886900,29760600,22231100,12976100,9469700,6568900],"43":[51583000,38527700,22482100,16683300,14613600,11379700,10303600,7158500,30949800,23116600,13489300,10010000,6827800],"44":[54852700,40959100,23885000,17515700,15075900,12085800,10921500,7458700,32911600,24575500,14331000,10509400,7251500],"45":[58336100,43549000,24640400,18594700,15576400,12840800,11640600,7924700,35001700,26129400,14784200,11156800,7704500],"46":[62289900,47311200,27298800,19705200,16330800,13741200,12464900,8398500,37373900,28386700,16379300,11823100,8244700],"47":[67399500,50716800,28616200,21059500,17568000,14604500,13276800,8991300,40439700,30430100,17169700,12635700,8762700],"48":[71687200,53498200,30460800,22023100,18958300,15526300,14083200,9558800,43012300,32098900,18276500,13213900,9315800],"49":[76256200,55966000,32677400,23002700,20095800,16512900,14971000,10166300,45753700,33579600,19606400,13801600,9907700],"50":[79743400,59539200,35130300,23441800,20579300,18185000,16428300,10819300,47846000,35723500,21078200,14065100,10911000],"51":[85676300,64005300,37704100,24929100,21971300,19740200,17830900,11505700,51405800,38403200,22622500,14957500,11844100],"52":[91753900,68534500,40303000,25705500,22793500,21136400,18974000,12380000,55052300,41120700,24181800,15423300,12681800],"53":[98263100,73386700,42851400,27516700,24450900,22625800,20131400,13252200,58957900,44032000,25710800,16510000,13575500],"54":[105236600,77925400,45293700,29453600,26210100,24217300,21446900,14184900,63142000,46755200,27176200,17672200,14530400],"55":[112700300,80632600,47593700,31519500,28361200,25839000,22799100,15180000,67620200,48379600,28556200,18911700,15503400],"56":[118867400,84314500,49191800,33694000,30407600,27376800,24170500,16267000,71320400,50588700,29515100,20216400,16426100],"57":[123762100,88605300,50789700,34966200,31731100,28087200,24872100,17464400,74257300,53163200,30473800,20979700,16852300],"58":[128944800,93915800,51662900,35601300,32301200,28597400,25428800,17914600,77366900,56349500,30997700,21360800,17158400],"59":[136106900,95166100,53694000,36633400,33494000,29895000,26562400,18113400,81664100,57099700,32216400,21980000,17937000],"60":[143268900,99735800,55725400,38133500,34599600,30759300,27576200,18189800,85961300,59841500,33435200,22880100,18455600],"61":[150431000,105098600,59491300,40931100,36747100,31989100,28952900,18943200,90258600,63059200,35694800,24558700,19193500],"62":[156142000,110461400,63257300,42383500,37395400,33372900,30267700,19767000,93685200,66276800,37954400,25430100,20023700],"63":[160760700,112967600,64789500,44535500,39070800,34258200,31121200,20463000,96456400,67780600,38873700,26721300,20554900],"64":[164377700,117831600,67368600,46485800,40684400,34951700,31756600,21033500,98626600,70699000,40421200,27891500,20971000],"65":[173095500,122695800,72148500,48498100,42136700,37537200,34051600,21878800,103857300,73617500,43289100,29098900,22522300],"66":[184865000,131228300,76889500,52189500,45831600,40083600,36422400,23544200,110919000,78737000,46133700,31313700,24050200],"67":[201552100,143185500,79678400,56109600,49922000,43956300,39899400,24728400,120931300,85911300,47807000,33665800,26373800],"68":[208840200,148058500,82467200,59144300,52952700,47904100,43375100,26723800,125304100,88835100,49480300,35486600,28742500],"69":[216128300,152931600,85256000,62429600,56068700,49559600,45026800,28153400,129677000,91759000,51153600,37457800,29735800],"70":[223416600,157804600,88044800,65221000,58870900,52525700,47709000,29582800,134050000,94682800,52826900,39132600,31515400],"71":[230704700,162677600,90833700,66238000,60325000,54364300,49413500,31012200,138422800,97606600,54500200,39742800,32618600],"72":[234474500,164773800,93622400,70065200,63914800,56202800,51054100,32441700,140684700,98864300,56173400,42039100,33721700],"73":[236908100,169231800,96567100,72695000,66407300,58041300,52687100,33871200,142144900,101539100,57940300,43617000,34824800],"74":[241332800,171835600,101169300,76636200,69606900,59879900,54349400,35944900,144799700,103101400,60701600,45981700,35927900],"75":[245895200,175413000,105223300,80233800,72456600,61718400,55952600,38018500,147537100,105247800,63134000,48140300,37031000],"76":[251211200,180036200,106520000,81820300,74684200,62938600,57006000,38770200,150726700,108021700,63912000,49092200,37763200],"77":[261223700,184659300,108038900,83661800,75558300,64355200,58252600,39440500,156734200,110795600,64823300,50197100,38613100],"78":[271236200,192602700,110555800,86393000,78532400,66456200,60096700,40728200,162741700,115561600,66333500,51835800,39873700],"79":[281248700,200546000,112526900,88800500,80534900,68308100,61730200,41765500,168749200,120327600,67516100,53280300,40984900],"80":[291261200,208489300,116718600,92108600,83650100,70852700,64000400,42916500,174756700,125093600,70031200,55265200,42511600],"81":[302987700,216432600,123826000,97960000,87847900,75353800,68057100,45589500,181792600,129859600,74295600,58776000,45212300],"82":[311286100,224375900,130933300,103811300,92045700,79854800,72113700,48262500,186771700,134625500,78560000,62286800,47912900],"83":[322097900,232257000,138040700,109662700,96243500,84355800,76170400,50935600,193258700,139354200,82824400,65797600,50613500],"84":[334622800,240138200,145148000,115514000,100441300,88856900,80227000,53608600,200773700,144082900,87088800,69308400,53314100],"85":[343915200,247895000,152255400,121365400,104639100,93357900,84283700,56281600,206349100,148737000,91353200,72819200,56014700]},"WANITA":{"0":[41166700,28880300,16645900,12022600,9328200,9248100,7426200,5696900,24700000,17328200,9987500,7213600,5548900],"1":[40797200,28519200,16285100,11583500,8987600,8910400,7154900,5488900,24478300,17111500,9771100,6950100,5346200],"2":[40791600,28508000,16270600,11565700,8973700,8896600,7144000,5480400,24475000,17104800,9762400,6939400,5338000],"3":[31750200,22213600,12715500,9090600,7053300,6992700,5615200,4388500,19050100,13328200,7629300,5454400,4195600],"4":[31747300,22210400,12712300,9087500,7066400,6990300,5616200,4388500,19048400,13326200,7627400,5452500,4194200],"5":[31750200,22210400,12712300,9087500,7128100,6990300,5642700,4431700,19050100,13326200,7627400,5452500,4194200],"6":[31863100,22292000,12760000,9122300,7196200,7017300,5711800,4474900,19117900,13375200,7656000,5473400,4210400],"7":[31867200,22295300,12762600,9123700,7224500,7018700,5773700,4518100,19120300,13377200,7657600,5474200,4211200],"8":[31871300,22298700,12765200,9125000,7264400,7020000,5784200,4561400,19122800,13379200,7659100,5475000,4212000],"9":[31875400,22302000,12767700,9126400,7304000,7021400,5809200,4604600,19125200,13381200,7660600,5475800,4212800],"10":[31879500,22305400,12770300,9127700,7326700,7022800,5834900,4647800,19127700,13383200,7662200,5476600,4213700],"11":[31884300,22309500,12773700,9130000,7345000,7024100,5871200,4691000,19130600,13385700,7664200,5478000,4214500],"12":[31889200,22313700,12777000,9132200,7356200,7025500,5935000,4734200,19133500,13388200,7666200,5479300,4215300],"13":[31894000,22317900,12780400,9134500,7368500,7026900,5996000,4777400,19136400,13390700,7668200,5480700,4216100],"14":[31898900,22322100,12783800,9136700,7380900,7028200,6056500,4820700,19139300,13393300,7670300,5482000,4216900],"15":[31918400,22334600,12789800,9139400,7393300,7030300,6144400,4863900,19151000,13400800,7673900,5483600,4218200],"16":[34795500,24144800,13477800,9465300,7737800,7664200,6763400,4907100,20877300,14486900,8086700,5679200,4598500],"17":[34841300,24175900,13958900,9474400,7834900,7671600,6834400,4950300,20904800,14505500,8375300,5684600,4603000],"18":[34866400,24395900,13968500,9481100,7905700,7676900,6888100,4993500,20919800,14637500,8381100,5688700,4606100],"19":[34914400,24521700,14000200,9538000,8028200,7685400,6972900,5036700,20948600,14713000,8400100,5722800,4611200],"20":[35507000,24639700,14108700,9568600,8118900,7816500,7125500,5080000,21304200,14783800,8465200,5741200,4689900],"21":[38594400,28085600,15779300,10559100,9073400,8340000,7638200,5123200,23156600,16851400,9467600,6335500,5004000],"22":[39435900,28452400,16087200,10587200,9184200,8514300,7801900,5230100,23661500,17071400,9652300,6352300,5108600],"23":[40061400,28658400,16351800,10655700,9373800,8648000,7914700,5373500,24036800,17195000,9811100,6393400,5188800],"24":[40525000,28992800,16551100,10681500,9544600,8749200,7984100,5436400,24315000,17395700,9930700,6408900,5249500],"25":[41208200,29370700,16806100,10713900,9674500,8941100,8186300,5492300,24724900,17622400,10083700,6428300,5364700],"26":[41224500,29744900,17632700,11255500,10250600,9051500,8269600,5575800,24734700,17846900,10579600,6753300,5430900],"27":[41908300,30096600,17770400,11439700,10421400,9199800,8404100,5667100,25145000,18058000,10662200,6863800,5519900],"28":[42575700,30445100,17908100,11622500,10608000,9346700,8552700,5757600,25545400,18267100,10744900,6973500,5608000],"29":[43425800,31034800,18095900,12032600,10970900,9676500,8740800,5963200,26055500,18620900,10857500,7219600,5805900],"30":[43507100,31239000,18098500,12036800,10999200,9679900,8928900,6222100,26104300,18743400,10859100,7222100,5807900],"31":[43773900,31901200,18637900,12080500,11114100,9696400,8999000,6296800,26264300,19140700,11182700,7248300,5817800],"32":[44675000,32424300,19087100,12273900,11229000,9706100,9032700,6397500,26805000,19454600,11452300,7364300,5823700],"33":[48518800,33838700,19603100,12856100,11708800,10114100,9382200,6526900,29111300,20303200,11761900,7713700,6068500],"34":[49165700,34753300,20075200,13936300,12730500,10720200,9892900,7203900,29499400,20852000,12045100,8361800,6432100],"35":[50261900,36091100,20624400,13983500,12793900,10756500,9934200,7228300,30157100,21654700,12374600,8390100,6453900],"36":[54141300,37092400,21616100,14086500,12839600,11032800,10112000,7281600,32484800,22255400,12969700,8451900,6619700],"37":[54571200,39009300,21778300,14188700,12858500,11112800,10374200,7334600,32742700,23405600,13067000,8513200,6667700],"38":[57360900,40990800,22868000,14819400,13390600,11662300,10907200,7461400,34416500,24594500,13720800,8891600,6997400],"39":[59982300,42139000,23020600,15549700,14232700,12178800,11132000,7829100,35989400,25283400,13812400,9329800,7307300],"40":[62065200,42752400,23951000,16151500,14705800,12989000,11693500,8171000,37239100,25651400,14370600,9690900,7793400],"41":[62332900,45320600,26151800,16868600,15027000,13565700,12189300,8634900,37399700,27192400,15691100,10121200,8139400],"42":[64811900,46310400,27177300,17527700,15310700,14095700,12606800,8867200,38887100,27786200,16306400,10516600,8457400],"43":[68947200,47961800,28397400,18346700,15785300,14968200,13228800,9237500,41368300,28777100,17038400,11008000,8980900],"44":[71357100,50044300,28975500,19256700,16413900,15486100,13784100,9649500,42814300,30026600,17385300,11554000,9291700],"45":[73853000,52280100,29325500,19924000,17075500,16022900,14344100,10127200,44311800,31368100,17595300,11954400,9613700],"46":[79942900,52831500,31845000,20698300,17732300,16645400,14888100,10496000,47965700,31698900,19107000,12419000,9987200],"47":[84122000,55662700,32951300,21423100,18342400,17228500,15548900,10915000,50473200,33397600,19770800,12853900,10337100],"48":[87073600,58631100,34101900,22174500,19542600,17832600,16143000,11297600,52244200,35178700,20461100,13304700,10699600],"49":[90133200,63327200,34777200,22956200,20812000,18461300,16836300,11696000,54079900,37996300,20866300,13773700,11076800],"50":[93301300,65555000,36534500,24201200,21612600,19115000,17323500,12081500,55980800,39333000,21920700,14520700,11469000],"51":[100748900,70262400,38551200,26200300,22828700,20523300,18570300,12717900,60449300,42157400,23130700,15720200,12314000],"52":[105963000,73891700,40533400,27690200,23759300,21586600,19505500,13551300,63577800,44335000,24320000,16614100,12952000],"53":[111456400,76446900,42629100,29130500,24889600,22709400,20360800,13908500,66873800,45868100,25577500,17478300,13625600],"54":[117239900,80407200,44457600,30122700,25758500,23894900,21419000,14634600,70343900,48244300,26674600,18073600,14336900],"55":[123316500,83161300,45339200,31684900,27655800,24704500,22169800,15393400,73989900,49896800,27203500,19010900,14822700],"56":[129930000,89131400,47097800,33260900,29241300,26057900,23257000,16159100,77958000,53478800,28258700,19956500,15634700],"57":[132885500,91178900,48246100,34402800,30832400,27392100,24324200,17072000,79731300,54707300,28947700,20641700,16435300],"58":[134879200,92567500,49033600,34972900,31465500,27846200,24934400,17444100,80927500,55540500,29420200,20983700,16707700],"59":[135911200,93299600,49461800,35302600,31955500,28921000,26068100,17608400,81546700,55979800,29677100,21181600,17352600],"60":[139900900,93376600,49533300,35393700,33643300,28935700,26183100,17653800,83940500,56026000,29720000,21236200,17361400],"61":[143890600,95078600,53270000,39634000,35331200,29755900,26976000,18236000,86334400,57047200,31962000,23780400,17853500],"62":[146029200,96523700,56386800,40981600,35845900,30283100,27399100,19113100,87617500,57914200,33832100,24589000,18169900],"63":[149209400,98670700,59091300,43010500,37212400,31049000,28245500,19496600,89525600,59202400,35454800,25806300,18629400],"64":[155448700,100174500,61475000,44822600,38353400,31627400,28656700,19961700,93269200,60104700,36885000,26893600,18976400],"65":[161688300,107030900,66767400,46902000,39698000,33901600,30576500,20345000,97013000,64218500,40060400,28141200,20341000],"66":[172607100,114408400,68903500,50154000,42020500,36430000,32425600,21755600,103564300,68645000,41342100,30092400,21858000],"67":[181601500,124752800,74655500,53553800,44476300,39877000,35634300,23405500,108960900,74851700,44793300,32132300,23926200],"68":[190595800,135180000,81026000,56933900,47640300,43395600,38864700,25661400,114357500,81108000,48615600,34160300,26037400],"69":[199590200,138912200,83422700,59690900,50394800,44814200,40257800,27943200,119754100,83347300,50053600,35814500,26888500],"70":[208584600,146072200,86505000,62477400,53754500,47357100,42384700,28835800,125150800,87643300,51903000,37486400,28414300],"71":[217579100,148881600,87659000,63205000,54547400,49323800,44232000,29171500,130547500,89329000,52595400,37923000,29594300],"72":[222935400,151690900,90117500,66167600,57340000,50898200,45723000,30975100,133761200,91014500,54070500,39700600,30538900],"73":[231686600,159064300,92652500,68307100,58991000,52543800,47322700,31976700,139012000,95438600,55591500,40984300,31526300],"74":[235666900,164410500,96751100,71648800,61680500,55114600,49694900,33950600,141400100,98646300,58050700,42989300,33068800],"75":[239735900,167498400,100265700,74609300,64092200,57391700,51846500,35353400,143841500,100499000,60159400,44765600,34435000],"76":[244467700,171308000,101079100,75599600,64829900,58153500,52615100,35822400,146680600,102784800,60647500,45359800,34892100],"77":[253645000,178353600,101981600,76698500,65445600,58998800,53444500,36343300,152187000,107012200,61189000,46019100,35399300],"78":[262822200,185399300,103682000,78438200,66389100,60337100,54736100,37167700,157693300,111239600,62209200,47062900,36202300],"79":[271999500,192444900,104776400,79770600,66445700,61361900,55205200,37799100,163199700,115466900,62865800,47862400,36817100],"80":[281176700,199490500,108551900,82645000,68800500,63573100,57247100,38507200,168706000,119694300,65131100,49587000,38143900],"81":[293654100,206578000,115254800,87748400,72793700,67498800,60872200,40885000,176192500,123946800,69152900,52649000,40499300],"82":[299531200,213581800,121957700,92851800,76787000,71424400,64497300,43262900,179718700,128149100,73174600,55711100,42854600],"83":[309573200,220669300,128660500,97955200,80780200,75350100,68122400,45640700,185743900,132401600,77196300,58773100,45210100],"84":[320960200,227756700,135363400,103058600,84773500,79275700,71747500,48018500,192576100,136654000,81218000,61835200,47565400],"85":[332489400,234927700,142066300,108162000,88766700,83201400,75372500,50396400,199493600,140956600,85239800,64897200,49920800]}};
+
+const DATA_KONV_RJ = {"PRIA":{"0":[12514500,12514500,11256300,11256300,11256300,11256300,11256300,11256300,12514500,12514500,11256300,11256300,11256300,11256300,11256300],"1":[12026200,12026200,10817400,10817400,10817400,10817400,10817400,10817400,12026200,12026200,10817400,10817400,10817400,10817400,10817400],"2":[8837300,8837300,7949500,7949500,7949500,7949500,7949500,7949500,8837300,8837300,7949500,7949500,7949500,7949500,7949500],"3":[7241500,7241500,6513400,6513400,6513400,6513400,6513400,6513400,7241500,7241500,6513400,6513400,6513400,6513400,6513400],"4":[6727700,6727700,6052500,6052500,6052500,6052500,6052500,6052500,6727700,6727700,6052500,6052500,6052500,6052500,6052500],"5":[6530600,6530600,5875200,5875200,5875200,5875200,5875200,5875200,6530600,6530600,5875200,5875200,5875200,5875200,5875200],"6":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"7":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"8":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"9":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"10":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"11":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"12":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"13":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"14":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"15":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"16":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"17":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"18":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"19":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"20":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"21":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"22":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"23":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"24":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"25":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"26":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"27":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"28":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"29":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"30":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"31":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"32":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"33":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"34":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"35":[5107600,5107600,4352600,4352600,4352600,4352600,4352600,4352600,5107600,5107600,4352600,4352600,4352600,4352600,4352600],"36":[5107600,5107600,4352600,4352600,4352600,4352600,4352600,4352600,5107600,5107600,4352600,4352600,4352600,4352600,4352600],"37":[5107600,5107600,4352600,4352600,4352600,4352600,4352600,4352600,5107600,5107600,4352600,4352600,4352600,4352600,4352600],"38":[5107600,5107600,4352600,4352600,4352600,4352600,4352600,4352600,5107600,5107600,4352600,4352600,4352600,4352600,4352600],"39":[5107600,5107600,4352600,4352600,4352600,4352600,4352600,4352600,5107600,5107600,4352600,4352600,4352600,4352600,4352600],"40":[6061200,6061200,5451900,5451900,5451900,5451900,5451900,5451900,6061200,6061200,5451900,5451900,5451900,5451900,5451900],"41":[6061200,6061200,5451900,5451900,5451900,5451900,5451900,5451900,6061200,6061200,5451900,5451900,5451900,5451900,5451900],"42":[6061200,6061200,5451900,5451900,5451900,5451900,5451900,5451900,6061200,6061200,5451900,5451900,5451900,5451900,5451900],"43":[6061200,6061200,5451900,5451900,5451900,5451900,5451900,5451900,6061200,6061200,5451900,5451900,5451900,5451900,5451900],"44":[6061200,6061200,5451900,5451900,5451900,5451900,5451900,5451900,6061200,6061200,5451900,5451900,5451900,5451900,5451900],"45":[7227600,7227600,6502400,6502400,6502400,6502400,6502400,6502400,7227600,7227600,6502400,6502400,6502400,6502400,6502400],"46":[7227600,7227600,6502400,6502400,6502400,6502400,6502400,6502400,7227600,7227600,6502400,6502400,6502400,6502400,6502400],"47":[7227600,7227600,6502400,6502400,6502400,6502400,6502400,6502400,7227600,7227600,6502400,6502400,6502400,6502400,6502400],"48":[7227600,7227600,6502400,6502400,6502400,6502400,6502400,6502400,7227600,7227600,6502400,6502400,6502400,6502400,6502400],"49":[7227600,7227600,6502400,6502400,6502400,6502400,6502400,6502400,7227600,7227600,6502400,6502400,6502400,6502400,6502400],"50":[7882200,7882200,6673000,6673000,6673000,6673000,6673000,6673000,7882200,7882200,6673000,6673000,6673000,6673000,6673000],"51":[7882200,7882200,6673000,6673000,6673000,6673000,6673000,6673000,7882200,7882200,6673000,6673000,6673000,6673000,6673000],"52":[7882200,7882200,6673000,6673000,6673000,6673000,6673000,6673000,7882200,7882200,6673000,6673000,6673000,6673000,6673000],"53":[7882200,7882200,6673000,6673000,6673000,6673000,6673000,6673000,7882200,7882200,6673000,6673000,6673000,6673000,6673000],"54":[7882200,7882200,6673000,6673000,6673000,6673000,6673000,6673000,7882200,7882200,6673000,6673000,6673000,6673000,6673000],"55":[9841500,9841500,8330700,8330700,8330700,8330700,8330700,8330700,9841500,9841500,8330700,8330700,8330700,8330700,8330700],"56":[9841500,9841500,8330700,8330700,8330700,8330700,8330700,8330700,9841500,9841500,8330700,8330700,8330700,8330700,8330700],"57":[9841500,9841500,8330700,8330700,8330700,8330700,8330700,8330700,9841500,9841500,8330700,8330700,8330700,8330700,8330700],"58":[9841500,9841500,8330700,8330700,8330700,8330700,8330700,8330700,9841500,9841500,8330700,8330700,8330700,8330700,8330700],"59":[9841500,9841500,8330700,8330700,8330700,8330700,8330700,8330700,9841500,9841500,8330700,8330700,8330700,8330700,8330700],"60":[12042500,12042500,10194700,10194700,10194700,10194700,10194700,10194700,12042500,12042500,10194700,10194700,10194700,10194700,10194700],"61":[12042500,12042500,10194700,10194700,10194700,10194700,10194700,10194700,12042500,12042500,10194700,10194700,10194700,10194700,10194700],"62":[12042500,12042500,10194700,10194700,10194700,10194700,10194700,10194700,12042500,12042500,10194700,10194700,10194700,10194700,10194700],"63":[12042500,12042500,10194700,10194700,10194700,10194700,10194700,10194700,12042500,12042500,10194700,10194700,10194700,10194700,10194700],"64":[12042500,12042500,10194700,10194700,10194700,10194700,10194700,10194700,12042500,12042500,10194700,10194700,10194700,10194700,10194700],"65":[18061700,18061700,12384700,12384700,12384700,12384700,12384700,12384700,18061700,18061700,12384700,12384700,12384700,12384700,12384700],"66":[18061700,18061700,12384700,12384700,12384700,12384700,12384700,12384700,18061700,18061700,12384700,12384700,12384700,12384700,12384700],"67":[18061700,18061700,12384700,12384700,12384700,12384700,12384700,12384700,18061700,18061700,12384700,12384700,12384700,12384700,12384700],"68":[18061700,18061700,12384700,12384700,12384700,12384700,12384700,12384700,18061700,18061700,12384700,12384700,12384700,12384700,12384700],"69":[18061700,18061700,12384700,12384700,12384700,12384700,12384700,12384700,18061700,18061700,12384700,12384700,12384700,12384700,12384700],"70":[18061700,18061700,12384700,12384700,12384700,12384700,12384700,12384700,18061700,18061700,12384700,12384700,12384700,12384700,12384700],"71":[18861900,18861900,12384700,12384700,12384700,12384700,12384700,12384700,18861900,18861900,12384700,12384700,12384700,12384700,12384700],"72":[18861900,18861900,12384700,12384700,12384700,12384700,12384700,12384700,18861900,18861900,12384700,12384700,12384700,12384700,12384700],"73":[18861900,18861900,12384700,12384700,12384700,12384700,12384700,12384700,18861900,18861900,12384700,12384700,12384700,12384700,12384700],"74":[18861900,18861900,12384700,12384700,12384700,12384700,12384700,12384700,18861900,18861900,12384700,12384700,12384700,12384700,12384700],"75":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"76":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"77":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"78":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"79":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"80":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"81":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"82":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"83":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"84":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"85":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700]},"WANITA":{"0":[12514500,12514500,11256300,11256300,11256300,11256300,11256300,11256300,12514500,12514500,11256300,11256300,11256300,11256300,11256300],"1":[12026200,12026200,10817400,10817400,10817400,10817400,10817400,10817400,12026200,12026200,10817400,10817400,10817400,10817400,10817400],"2":[8837300,8837300,7949500,7949500,7949500,7949500,7949500,7949500,8837300,8837300,7949500,7949500,7949500,7949500,7949500],"3":[7241500,7241500,6513400,6513400,6513400,6513400,6513400,6513400,7241500,7241500,6513400,6513400,6513400,6513400,6513400],"4":[6727700,6727700,6052500,6052500,6052500,6052500,6052500,6052500,6727700,6727700,6052500,6052500,6052500,6052500,6052500],"5":[6530600,6530600,5875200,5875200,5875200,5875200,5875200,5875200,6530600,6530600,5875200,5875200,5875200,5875200,5875200],"6":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"7":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"8":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"9":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"10":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"11":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"12":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"13":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"14":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"15":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"16":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"17":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"18":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"19":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"20":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"21":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"22":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"23":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"24":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"25":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"26":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"27":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"28":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"29":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"30":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"31":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"32":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"33":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"34":[4864700,4864700,4144400,4144400,4144400,4144400,4144400,4144400,4864700,4864700,4144400,4144400,4144400,4144400,4144400],"35":[5107600,5107600,4352600,4352600,4352600,4352600,4352600,4352600,5107600,5107600,4352600,4352600,4352600,4352600,4352600],"36":[5107600,5107600,4352600,4352600,4352600,4352600,4352600,4352600,5107600,5107600,4352600,4352600,4352600,4352600,4352600],"37":[5107600,5107600,4352600,4352600,4352600,4352600,4352600,4352600,5107600,5107600,4352600,4352600,4352600,4352600,4352600],"38":[5107600,5107600,4352600,4352600,4352600,4352600,4352600,4352600,5107600,5107600,4352600,4352600,4352600,4352600,4352600],"39":[5107600,5107600,4352600,4352600,4352600,4352600,4352600,4352600,5107600,5107600,4352600,4352600,4352600,4352600,4352600],"40":[6061200,6061200,5451900,5451900,5451900,5451900,5451900,5451900,6061200,6061200,5451900,5451900,5451900,5451900,5451900],"41":[6061200,6061200,5451900,5451900,5451900,5451900,5451900,5451900,6061200,6061200,5451900,5451900,5451900,5451900,5451900],"42":[6061200,6061200,5451900,5451900,5451900,5451900,5451900,5451900,6061200,6061200,5451900,5451900,5451900,5451900,5451900],"43":[6061200,6061200,5451900,5451900,5451900,5451900,5451900,5451900,6061200,6061200,5451900,5451900,5451900,5451900,5451900],"44":[6061200,6061200,5451900,5451900,5451900,5451900,5451900,5451900,6061200,6061200,5451900,5451900,5451900,5451900,5451900],"45":[7227600,7227600,6502400,6502400,6502400,6502400,6502400,6502400,7227600,7227600,6502400,6502400,6502400,6502400,6502400],"46":[7227600,7227600,6502400,6502400,6502400,6502400,6502400,6502400,7227600,7227600,6502400,6502400,6502400,6502400,6502400],"47":[7227600,7227600,6502400,6502400,6502400,6502400,6502400,6502400,7227600,7227600,6502400,6502400,6502400,6502400,6502400],"48":[7227600,7227600,6502400,6502400,6502400,6502400,6502400,6502400,7227600,7227600,6502400,6502400,6502400,6502400,6502400],"49":[7227600,7227600,6502400,6502400,6502400,6502400,6502400,6502400,7227600,7227600,6502400,6502400,6502400,6502400,6502400],"50":[7882200,7882200,6673000,6673000,6673000,6673000,6673000,6673000,7882200,7882200,6673000,6673000,6673000,6673000,6673000],"51":[7882200,7882200,6673000,6673000,6673000,6673000,6673000,6673000,7882200,7882200,6673000,6673000,6673000,6673000,6673000],"52":[7882200,7882200,6673000,6673000,6673000,6673000,6673000,6673000,7882200,7882200,6673000,6673000,6673000,6673000,6673000],"53":[7882200,7882200,6673000,6673000,6673000,6673000,6673000,6673000,7882200,7882200,6673000,6673000,6673000,6673000,6673000],"54":[7882200,7882200,6673000,6673000,6673000,6673000,6673000,6673000,7882200,7882200,6673000,6673000,6673000,6673000,6673000],"55":[9841500,9841500,8330700,8330700,8330700,8330700,8330700,8330700,9841500,9841500,8330700,8330700,8330700,8330700,8330700],"56":[9841500,9841500,8330700,8330700,8330700,8330700,8330700,8330700,9841500,9841500,8330700,8330700,8330700,8330700,8330700],"57":[9841500,9841500,8330700,8330700,8330700,8330700,8330700,8330700,9841500,9841500,8330700,8330700,8330700,8330700,8330700],"58":[9841500,9841500,8330700,8330700,8330700,8330700,8330700,8330700,9841500,9841500,8330700,8330700,8330700,8330700,8330700],"59":[9841500,9841500,8330700,8330700,8330700,8330700,8330700,8330700,9841500,9841500,8330700,8330700,8330700,8330700,8330700],"60":[12042500,12042500,10194700,10194700,10194700,10194700,10194700,10194700,12042500,12042500,10194700,10194700,10194700,10194700,10194700],"61":[12042500,12042500,10194700,10194700,10194700,10194700,10194700,10194700,12042500,12042500,10194700,10194700,10194700,10194700,10194700],"62":[12042500,12042500,10194700,10194700,10194700,10194700,10194700,10194700,12042500,12042500,10194700,10194700,10194700,10194700,10194700],"63":[12042500,12042500,10194700,10194700,10194700,10194700,10194700,10194700,12042500,12042500,10194700,10194700,10194700,10194700,10194700],"64":[12042500,12042500,10194700,10194700,10194700,10194700,10194700,10194700,12042500,12042500,10194700,10194700,10194700,10194700,10194700],"65":[18061700,18061700,12384700,12384700,12384700,12384700,12384700,12384700,18061700,18061700,12384700,12384700,12384700,12384700,12384700],"66":[18061700,18061700,12384700,12384700,12384700,12384700,12384700,12384700,18061700,18061700,12384700,12384700,12384700,12384700,12384700],"67":[18061700,18061700,12384700,12384700,12384700,12384700,12384700,12384700,18061700,18061700,12384700,12384700,12384700,12384700,12384700],"68":[18061700,18061700,12384700,12384700,12384700,12384700,12384700,12384700,18061700,18061700,12384700,12384700,12384700,12384700,12384700],"69":[18061700,18061700,12384700,12384700,12384700,12384700,12384700,12384700,18061700,18061700,12384700,12384700,12384700,12384700,12384700],"70":[18061700,18061700,12384700,12384700,12384700,12384700,12384700,12384700,18061700,18061700,12384700,12384700,12384700,12384700,12384700],"71":[18861900,18861900,12384700,12384700,12384700,12384700,12384700,12384700,18861900,18861900,12384700,12384700,12384700,12384700,12384700],"72":[18861900,18861900,12384700,12384700,12384700,12384700,12384700,12384700,18861900,18861900,12384700,12384700,12384700,12384700,12384700],"73":[18861900,18861900,12384700,12384700,12384700,12384700,12384700,12384700,18861900,18861900,12384700,12384700,12384700,12384700,12384700],"74":[18861900,18861900,12384700,12384700,12384700,12384700,12384700,12384700,18861900,18861900,12384700,12384700,12384700,12384700,12384700],"75":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"76":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"77":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"78":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"79":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"80":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"81":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"82":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"83":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"84":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700],"85":[22041500,22041500,12384700,12384700,12384700,12384700,12384700,12384700,22041500,22041500,12384700,12384700,12384700,12384700,12384700]}};
+
+const DATA_SYARIAH_RJ = {"PRIA":{"0":[12026200,12026200,10817400,10817400,10817400,10817400,10817400,10817400,12026200,12026200,10817400,10817400,10817400],"1":[12514500,12514500,11256300,11256300,11256300,11256300,11256300,11256300,12514500,12514500,11256300,11256300,11256300],"2":[8686900,8686900,7814400,7814400,7814400,7814400,7814400,7814400,8686900,8686900,7814400,7814400,7814400],"3":[6685400,6685400,6014800,6014800,6014800,6014800,6014800,6014800,6685400,6685400,6014800,6014800,6014800],"4":[6514100,6514100,5859600,5859600,5859600,5859600,5859600,5859600,6514100,6514100,5859600,5859600,5859600],"5":[6342800,6342800,5704400,5704400,5704400,5704400,5704400,5704400,6342800,6342800,5704400,5704400,5704400],"6":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"7":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"8":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"9":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"10":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"11":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"12":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"13":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"14":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"15":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"16":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"17":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"18":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"19":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"20":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"21":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"22":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"23":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"24":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"25":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"26":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"27":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"28":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"29":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"30":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"31":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"32":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"33":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"34":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"35":[5850600,5850600,4984200,4984200,4984200,4984200,4984200,4984200,5850600,5850600,4984200,4984200,4984200],"36":[5850600,5850600,4984200,4984200,4984200,4984200,4984200,4984200,5850600,5850600,4984200,4984200,4984200],"37":[5850600,5850600,4984200,4984200,4984200,4984200,4984200,4984200,5850600,5850600,4984200,4984200,4984200],"38":[5850600,5850600,4984200,4984200,4984200,4984200,4984200,4984200,5850600,5850600,4984200,4984200,4984200],"39":[5850600,5850600,4984200,4984200,4984200,4984200,4984200,4984200,5850600,5850600,4984200,4984200,4984200],"40":[6952900,6952900,6254200,6254200,6254200,6254200,6254200,6254200,6952900,6952900,6254200,6254200,6254200],"41":[6952900,6952900,6254200,6254200,6254200,6254200,6254200,6254200,6952900,6952900,6254200,6254200,6254200],"42":[6952900,6952900,6254200,6254200,6254200,6254200,6254200,6254200,6952900,6952900,6254200,6254200,6254200],"43":[6952900,6952900,6254200,6254200,6254200,6254200,6254200,6254200,6952900,6952900,6254200,6254200,6254200],"44":[6952900,6952900,6254200,6254200,6254200,6254200,6254200,6254200,6952900,6952900,6254200,6254200,6254200],"45":[8658900,8658900,7790000,7790000,7790000,7790000,7790000,7790000,8658900,8658900,7790000,7790000,7790000],"46":[8658900,8658900,7790000,7790000,7790000,7790000,7790000,7790000,8658900,8658900,7790000,7790000,7790000],"47":[8658900,8658900,7790000,7790000,7790000,7790000,7790000,7790000,8658900,8658900,7790000,7790000,7790000],"48":[8658900,8658900,7790000,7790000,7790000,7790000,7790000,7790000,8658900,8658900,7790000,7790000,7790000],"49":[8658900,8658900,7790000,7790000,7790000,7790000,7790000,7790000,8658900,8658900,7790000,7790000,7790000],"50":[11136800,11136800,9427800,9427800,9427800,9427800,9427800,9427800,11136800,11136800,9427800,9427800,9427800],"51":[11136800,11136800,9427800,9427800,9427800,9427800,9427800,9427800,11136800,11136800,9427800,9427800,9427800],"52":[11136800,11136800,9427800,9427800,9427800,9427800,9427800,9427800,11136800,11136800,9427800,9427800,9427800],"53":[11136800,11136800,9427800,9427800,9427800,9427800,9427800,9427800,11136800,11136800,9427800,9427800,9427800],"54":[11136800,11136800,9427800,9427800,9427800,9427800,9427800,9427800,11136800,11136800,9427800,9427800,9427800],"55":[11899600,11899600,10072600,10072600,10072600,10072600,10072600,10072600,11899600,11899600,10072600,10072600,10072600],"56":[11899600,11899600,10072600,10072600,10072600,10072600,10072600,10072600,11899600,11899600,10072600,10072600,10072600],"57":[11899600,11899600,10072600,10072600,10072600,10072600,10072600,10072600,11899600,11899600,10072600,10072600,10072600],"58":[11899600,11899600,10072600,10072600,10072600,10072600,10072600,10072600,11899600,11899600,10072600,10072600,10072600],"59":[11899600,11899600,10072600,10072600,10072600,10072600,10072600,10072600,11899600,11899600,10072600,10072600,10072600],"60":[16998600,16998600,12384700,12384700,12384700,12384700,12384700,12384700,16998600,16998600,12384700,12384700,12384700],"61":[16998600,16998600,12384700,12384700,12384700,12384700,12384700,12384700,16998600,16998600,12384700,12384700,12384700],"62":[16998600,16998600,12384700,12384700,12384700,12384700,12384700,12384700,16998600,16998600,12384700,12384700,12384700],"63":[16998600,16998600,12384700,12384700,12384700,12384700,12384700,12384700,16998600,16998600,12384700,12384700,12384700],"64":[16998600,16998600,12384700,12384700,12384700,12384700,12384700,12384700,16998600,16998600,12384700,12384700,12384700],"65":[18850100,18850100,12384700,12384700,12384700,12384700,12384700,12384700,18850100,18850100,12384700,12384700,12384700],"66":[18850100,18850100,12384700,12384700,12384700,12384700,12384700,12384700,18850100,18850100,12384700,12384700,12384700],"67":[18850100,18850100,12384700,12384700,12384700,12384700,12384700,12384700,18850100,18850100,12384700,12384700,12384700],"68":[18850100,18850100,12384700,12384700,12384700,12384700,12384700,12384700,18850100,18850100,12384700,12384700,12384700],"69":[18850100,18850100,12384700,12384700,12384700,12384700,12384700,12384700,18850100,18850100,12384700,12384700,12384700],"70":[18850100,18850100,12384700,12384700,12384700,12384700,12384700,12384700,18850100,18850100,12384700,12384700,12384700],"71":[21431300,21431300,12384700,12384700,12384700,12384700,12384700,12384700,21431300,21431300,12384700,12384700,12384700],"72":[21431300,21431300,12384700,12384700,12384700,12384700,12384700,12384700,21431300,21431300,12384700,12384700,12384700],"73":[21431300,21431300,12384700,12384700,12384700,12384700,12384700,12384700,21431300,21431300,12384700,12384700,12384700],"74":[21431300,21431300,12384700,12384700,12384700,12384700,12384700,12384700,21431300,21431300,12384700,12384700,12384700],"75":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"76":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"77":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"78":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"79":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"80":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"81":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"82":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"83":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"84":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"85":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700]},"WANITA":{"0":[12026200,12026200,10817400,10817400,10817400,10817400,10817400,10817400,12026200,12026200,10817400,10817400,10817400],"1":[12514500,12514500,11256300,11256300,11256300,11256300,11256300,11256300,12514500,12514500,11256300,11256300,11256300],"2":[8686900,8686900,7814400,7814400,7814400,7814400,7814400,7814400,8686900,8686900,7814400,7814400,7814400],"3":[6685400,6685400,6014800,6014800,6014800,6014800,6014800,6014800,6685400,6685400,6014800,6014800,6014800],"4":[6514100,6514100,5859600,5859600,5859600,5859600,5859600,5859600,6514100,6514100,5859600,5859600,5859600],"5":[6342800,6342800,5704400,5704400,5704400,5704400,5704400,5704400,6342800,6342800,5704400,5704400,5704400],"6":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"7":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"8":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"9":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"10":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"11":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"12":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"13":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"14":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"15":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"16":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"17":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"18":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"19":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"20":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"21":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"22":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"23":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"24":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"25":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"26":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"27":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"28":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"29":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"30":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"31":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"32":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"33":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"34":[4688800,4688800,3995800,3995800,3995800,3995800,3995800,3995800,4688800,4688800,3995800,3995800,3995800],"35":[5850600,5850600,4984200,4984200,4984200,4984200,4984200,4984200,5850600,5850600,4984200,4984200,4984200],"36":[5850600,5850600,4984200,4984200,4984200,4984200,4984200,4984200,5850600,5850600,4984200,4984200,4984200],"37":[5850600,5850600,4984200,4984200,4984200,4984200,4984200,4984200,5850600,5850600,4984200,4984200,4984200],"38":[5850600,5850600,4984200,4984200,4984200,4984200,4984200,4984200,5850600,5850600,4984200,4984200,4984200],"39":[5850600,5850600,4984200,4984200,4984200,4984200,4984200,4984200,5850600,5850600,4984200,4984200,4984200],"40":[6952900,6952900,6254200,6254200,6254200,6254200,6254200,6254200,6952900,6952900,6254200,6254200,6254200],"41":[6952900,6952900,6254200,6254200,6254200,6254200,6254200,6254200,6952900,6952900,6254200,6254200,6254200],"42":[6952900,6952900,6254200,6254200,6254200,6254200,6254200,6254200,6952900,6952900,6254200,6254200,6254200],"43":[6952900,6952900,6254200,6254200,6254200,6254200,6254200,6254200,6952900,6952900,6254200,6254200,6254200],"44":[6952900,6952900,6254200,6254200,6254200,6254200,6254200,6254200,6952900,6952900,6254200,6254200,6254200],"45":[8658900,8658900,7790000,7790000,7790000,7790000,7790000,7790000,8658900,8658900,7790000,7790000,7790000],"46":[8658900,8658900,7790000,7790000,7790000,7790000,7790000,7790000,8658900,8658900,7790000,7790000,7790000],"47":[8658900,8658900,7790000,7790000,7790000,7790000,7790000,7790000,8658900,8658900,7790000,7790000,7790000],"48":[8658900,8658900,7790000,7790000,7790000,7790000,7790000,7790000,8658900,8658900,7790000,7790000,7790000],"49":[8658900,8658900,7790000,7790000,7790000,7790000,7790000,7790000,8658900,8658900,7790000,7790000,7790000],"50":[11136800,11136800,9427800,9427800,9427800,9427800,9427800,9427800,11136800,11136800,9427800,9427800,9427800],"51":[11136800,11136800,9427800,9427800,9427800,9427800,9427800,9427800,11136800,11136800,9427800,9427800,9427800],"52":[11136800,11136800,9427800,9427800,9427800,9427800,9427800,9427800,11136800,11136800,9427800,9427800,9427800],"53":[11136800,11136800,9427800,9427800,9427800,9427800,9427800,9427800,11136800,11136800,9427800,9427800,9427800],"54":[11136800,11136800,9427800,9427800,9427800,9427800,9427800,9427800,11136800,11136800,9427800,9427800,9427800],"55":[11899600,11899600,10072600,10072600,10072600,10072600,10072600,10072600,11899600,11899600,10072600,10072600,10072600],"56":[11899600,11899600,10072600,10072600,10072600,10072600,10072600,10072600,11899600,11899600,10072600,10072600,10072600],"57":[11899600,11899600,10072600,10072600,10072600,10072600,10072600,10072600,11899600,11899600,10072600,10072600,10072600],"58":[11899600,11899600,10072600,10072600,10072600,10072600,10072600,10072600,11899600,11899600,10072600,10072600,10072600],"59":[11899600,11899600,10072600,10072600,10072600,10072600,10072600,10072600,11899600,11899600,10072600,10072600,10072600],"60":[16998600,16998600,12384700,12384700,12384700,12384700,12384700,12384700,16998600,16998600,12384700,12384700,12384700],"61":[16998600,16998600,12384700,12384700,12384700,12384700,12384700,12384700,16998600,16998600,12384700,12384700,12384700],"62":[16998600,16998600,12384700,12384700,12384700,12384700,12384700,12384700,16998600,16998600,12384700,12384700,12384700],"63":[16998600,16998600,12384700,12384700,12384700,12384700,12384700,12384700,16998600,16998600,12384700,12384700,12384700],"64":[16998600,16998600,12384700,12384700,12384700,12384700,12384700,12384700,16998600,16998600,12384700,12384700,12384700],"65":[18850100,18850100,12384700,12384700,12384700,12384700,12384700,12384700,18850100,18850100,12384700,12384700,12384700],"66":[18850100,18850100,12384700,12384700,12384700,12384700,12384700,12384700,18850100,18850100,12384700,12384700,12384700],"67":[18850100,18850100,12384700,12384700,12384700,12384700,12384700,12384700,18850100,18850100,12384700,12384700,12384700],"68":[18850100,18850100,12384700,12384700,12384700,12384700,12384700,12384700,18850100,18850100,12384700,12384700,12384700],"69":[18850100,18850100,12384700,12384700,12384700,12384700,12384700,12384700,18850100,18850100,12384700,12384700,12384700],"70":[18850100,18850100,12384700,12384700,12384700,12384700,12384700,12384700,18850100,18850100,12384700,12384700,12384700],"71":[21431300,21431300,12384700,12384700,12384700,12384700,12384700,12384700,21431300,21431300,12384700,12384700,12384700],"72":[21431300,21431300,12384700,12384700,12384700,12384700,12384700,12384700,21431300,21431300,12384700,12384700,12384700],"73":[21431300,21431300,12384700,12384700,12384700,12384700,12384700,12384700,21431300,21431300,12384700,12384700,12384700],"74":[21431300,21431300,12384700,12384700,12384700,12384700,12384700,12384700,21431300,21431300,12384700,12384700,12384700],"75":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"76":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"77":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"78":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"79":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"80":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"81":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"82":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"83":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"84":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700],"85":[23972700,23972700,12384700,12384700,12384700,12384700,12384700,12384700,23972700,23972700,12384700,12384700,12384700]}};
+
+const DATA_SYARIAH_GIGI = {"PRIA":{"0":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"1":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"2":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"3":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"4":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"5":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"6":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"7":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"8":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"9":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"10":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"11":[3069500,3069500,2340400,2340400,2340400,2340400,2340400,2340400,3069500,3069500,2340400,2340400,2340400],"12":[3069500,3069500,2340400,2340400,2340400,2340400,2340400,2340400,3069500,3069500,2340400,2340400,2340400],"13":[3069500,3069500,2340400,2340400,2340400,2340400,2340400,2340400,3069500,3069500,2340400,2340400,2340400],"14":[3069500,3069500,2340400,2340400,2340400,2340400,2340400,2340400,3069500,3069500,2340400,2340400,2340400],"15":[3566900,3566900,2721500,2721500,2721500,2721500,2721500,2721500,3566900,3566900,2721500,2721500,2721500],"16":[3566900,3566900,2721500,2721500,2721500,2721500,2721500,2721500,3566900,3566900,2721500,2721500,2721500],"17":[3566900,3566900,2721500,2721500,2721500,2721500,2721500,2721500,3566900,3566900,2721500,2721500,2721500],"18":[3566900,3566900,2721500,2721500,2721500,2721500,2721500,2721500,3566900,3566900,2721500,2721500,2721500],"19":[3566900,3566900,2721500,2721500,2721500,2721500,2721500,2721500,3566900,3566900,2721500,2721500,2721500],"20":[3745300,3745300,2856700,2856700,2856700,2856700,2856700,2856700,3745300,3745300,2856700,2856700,2856700],"21":[3745300,3745300,2856700,2856700,2856700,2856700,2856700,2856700,3745300,3745300,2856700,2856700,2856700],"22":[3745300,3745300,2856700,2856700,2856700,2856700,2856700,2856700,3745300,3745300,2856700,2856700,2856700],"23":[3745300,3745300,2856700,2856700,2856700,2856700,2856700,2856700,3745300,3745300,2856700,2856700,2856700],"24":[3745300,3745300,2856700,2856700,2856700,2856700,2856700,2856700,3745300,3745300,2856700,2856700,2856700],"25":[3932800,3932800,3000700,3000700,3000700,3000700,3000700,3000700,3932800,3932800,3000700,3000700,3000700],"26":[3932800,3932800,3000700,3000700,3000700,3000700,3000700,3000700,3932800,3932800,3000700,3000700,3000700],"27":[3932800,3932800,3000700,3000700,3000700,3000700,3000700,3000700,3932800,3932800,3000700,3000700,3000700],"28":[3932800,3932800,3000700,3000700,3000700,3000700,3000700,3000700,3932800,3932800,3000700,3000700,3000700],"29":[3932800,3932800,3000700,3000700,3000700,3000700,3000700,3000700,3932800,3932800,3000700,3000700,3000700],"30":[4350500,4350500,3317600,3317600,3317600,3317600,3317600,3317600,4350500,4350500,3317600,3317600,3317600],"31":[4350500,4350500,3317600,3317600,3317600,3317600,3317600,3317600,4350500,4350500,3317600,3317600,3317600],"32":[4350500,4350500,3317600,3317600,3317600,3317600,3317600,3317600,4350500,4350500,3317600,3317600,3317600],"33":[4350500,4350500,3317600,3317600,3317600,3317600,3317600,3317600,4350500,4350500,3317600,3317600,3317600],"34":[4350500,4350500,3317600,3317600,3317600,3317600,3317600,3317600,4350500,4350500,3317600,3317600,3317600],"35":[4758800,4758800,3630100,3630100,3630100,3630100,3630100,3630100,4758800,4758800,3630100,3630100,3630100],"36":[4758800,4758800,3630100,3630100,3630100,3630100,3630100,3630100,4758800,4758800,3630100,3630100,3630100],"37":[4758800,4758800,3630100,3630100,3630100,3630100,3630100,3630100,4758800,4758800,3630100,3630100,3630100],"38":[4758800,4758800,3630100,3630100,3630100,3630100,3630100,3630100,4758800,4758800,3630100,3630100,3630100],"39":[4758800,4758800,3630100,3630100,3630100,3630100,3630100,3630100,4758800,4758800,3630100,3630100,3630100],"40":[4948900,4948900,3774300,3774300,3774300,3774300,3774300,3774300,4948900,4948900,3774300,3774300,3774300],"41":[4948900,4948900,3774300,3774300,3774300,3774300,3774300,3774300,4948900,4948900,3774300,3774300,3774300],"42":[4948900,4948900,3774300,3774300,3774300,3774300,3774300,3774300,4948900,4948900,3774300,3774300,3774300],"43":[4948900,4948900,3774300,3774300,3774300,3774300,3774300,3774300,4948900,4948900,3774300,3774300,3774300],"44":[4948900,4948900,3774300,3774300,3774300,3774300,3774300,3774300,4948900,4948900,3774300,3774300,3774300],"45":[5195400,5195400,3962500,3962500,3962500,3962500,3962500,3962500,5195400,5195400,3962500,3962500,3962500],"46":[5195400,5195400,3962500,3962500,3962500,3962500,3962500,3962500,5195400,5195400,3962500,3962500,3962500],"47":[5195400,5195400,3962500,3962500,3962500,3962500,3962500,3962500,5195400,5195400,3962500,3962500,3962500],"48":[5195400,5195400,3962500,3962500,3962500,3962500,3962500,3962500,5195400,5195400,3962500,3962500,3962500],"49":[5195400,5195400,3962500,3962500,3962500,3962500,3962500,3962500,5195400,5195400,3962500,3962500,3962500],"50":[5455900,5455900,4162100,4162100,4162100,4162100,4162100,4162100,5455900,5455900,4162100,4162100,4162100],"51":[5455900,5455900,4162100,4162100,4162100,4162100,4162100,4162100,5455900,5455900,4162100,4162100,4162100],"52":[5455900,5455900,4162100,4162100,4162100,4162100,4162100,4162100,5455900,5455900,4162100,4162100,4162100],"53":[5455900,5455900,4162100,4162100,4162100,4162100,4162100,4162100,5455900,5455900,4162100,4162100,4162100],"54":[5455900,5455900,4162100,4162100,4162100,4162100,4162100,4162100,5455900,5455900,4162100,4162100,4162100],"55":[5727900,5727900,4370400,4370400,4370400,4370400,4370400,4370400,5727900,5727900,4370400,4370400,4370400],"56":[5727900,5727900,4370400,4370400,4370400,4370400,4370400,4370400,5727900,5727900,4370400,4370400,4370400],"57":[5727900,5727900,4370400,4370400,4370400,4370400,4370400,4370400,5727900,5727900,4370400,4370400,4370400],"58":[5727900,5727900,4370400,4370400,4370400,4370400,4370400,4370400,5727900,5727900,4370400,4370400,4370400],"59":[5727900,5727900,4370400,4370400,4370400,4370400,4370400,4370400,5727900,5727900,4370400,4370400,4370400],"60":[6094100,6094100,4649700,4649700,4649700,4649700,4649700,4649700,6094100,6094100,4649700,4649700,4649700],"61":[6094100,6094100,4649700,4649700,4649700,4649700,4649700,4649700,6094100,6094100,4649700,4649700,4649700],"62":[6094100,6094100,4649700,4649700,4649700,4649700,4649700,4649700,6094100,6094100,4649700,4649700,4649700],"63":[6094100,6094100,4649700,4649700,4649700,4649700,4649700,4649700,6094100,6094100,4649700,4649700,4649700],"64":[6094100,6094100,4649700,4649700,4649700,4649700,4649700,4649700,6094100,6094100,4649700,4649700,4649700],"65":[6549400,6549400,4995400,4995400,4995400,4995400,4995400,4995400,6549400,6549400,4995400,4995400,4995400],"66":[6549400,6549400,4995400,4995400,4995400,4995400,4995400,4995400,6549400,6549400,4995400,4995400,4995400],"67":[6549400,6549400,4995400,4995400,4995400,4995400,4995400,4995400,6549400,6549400,4995400,4995400,4995400],"68":[6549400,6549400,4995400,4995400,4995400,4995400,4995400,4995400,6549400,6549400,4995400,4995400,4995400],"69":[6549400,6549400,4995400,4995400,4995400,4995400,4995400,4995400,6549400,6549400,4995400,4995400,4995400],"70":[6549400,6549400,4995400,4995400,4995400,4995400,4995400,4995400,6549400,6549400,4995400,4995400,4995400],"71":[6816800,6816800,5199200,5199200,5199200,5199200,5199200,5199200,6816800,6816800,5199200,5199200,5199200],"72":[6816800,6816800,5199200,5199200,5199200,5199200,5199200,5199200,6816800,6816800,5199200,5199200,5199200],"73":[6816800,6816800,5199200,5199200,5199200,5199200,5199200,5199200,6816800,6816800,5199200,5199200,5199200],"74":[6816800,6816800,5199200,5199200,5199200,5199200,5199200,5199200,6816800,6816800,5199200,5199200,5199200],"75":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"76":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"77":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"78":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"79":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"80":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"81":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"82":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"83":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"84":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"85":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900]},"WANITA":{"0":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"1":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"2":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"3":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"4":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"5":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"6":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"7":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"8":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"9":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"10":[2872300,2872300,2191900,2191900,2191900,2191900,2191900,2191900,2872300,2872300,2191900,2191900,2191900],"11":[3069500,3069500,2340400,2340400,2340400,2340400,2340400,2340400,3069500,3069500,2340400,2340400,2340400],"12":[3069500,3069500,2340400,2340400,2340400,2340400,2340400,2340400,3069500,3069500,2340400,2340400,2340400],"13":[3069500,3069500,2340400,2340400,2340400,2340400,2340400,2340400,3069500,3069500,2340400,2340400,2340400],"14":[3069500,3069500,2340400,2340400,2340400,2340400,2340400,2340400,3069500,3069500,2340400,2340400,2340400],"15":[3566900,3566900,2721500,2721500,2721500,2721500,2721500,2721500,3566900,3566900,2721500,2721500,2721500],"16":[3566900,3566900,2721500,2721500,2721500,2721500,2721500,2721500,3566900,3566900,2721500,2721500,2721500],"17":[3566900,3566900,2721500,2721500,2721500,2721500,2721500,2721500,3566900,3566900,2721500,2721500,2721500],"18":[3566900,3566900,2721500,2721500,2721500,2721500,2721500,2721500,3566900,3566900,2721500,2721500,2721500],"19":[3566900,3566900,2721500,2721500,2721500,2721500,2721500,2721500,3566900,3566900,2721500,2721500,2721500],"20":[3745300,3745300,2856700,2856700,2856700,2856700,2856700,2856700,3745300,3745300,2856700,2856700,2856700],"21":[3745300,3745300,2856700,2856700,2856700,2856700,2856700,2856700,3745300,3745300,2856700,2856700,2856700],"22":[3745300,3745300,2856700,2856700,2856700,2856700,2856700,2856700,3745300,3745300,2856700,2856700,2856700],"23":[3745300,3745300,2856700,2856700,2856700,2856700,2856700,2856700,3745300,3745300,2856700,2856700,2856700],"24":[3745300,3745300,2856700,2856700,2856700,2856700,2856700,2856700,3745300,3745300,2856700,2856700,2856700],"25":[3932800,3932800,3000700,3000700,3000700,3000700,3000700,3000700,3932800,3932800,3000700,3000700,3000700],"26":[3932800,3932800,3000700,3000700,3000700,3000700,3000700,3000700,3932800,3932800,3000700,3000700,3000700],"27":[3932800,3932800,3000700,3000700,3000700,3000700,3000700,3000700,3932800,3932800,3000700,3000700,3000700],"28":[3932800,3932800,3000700,3000700,3000700,3000700,3000700,3000700,3932800,3932800,3000700,3000700,3000700],"29":[3932800,3932800,3000700,3000700,3000700,3000700,3000700,3000700,3932800,3932800,3000700,3000700,3000700],"30":[4350500,4350500,3317600,3317600,3317600,3317600,3317600,3317600,4350500,4350500,3317600,3317600,3317600],"31":[4350500,4350500,3317600,3317600,3317600,3317600,3317600,3317600,4350500,4350500,3317600,3317600,3317600],"32":[4350500,4350500,3317600,3317600,3317600,3317600,3317600,3317600,4350500,4350500,3317600,3317600,3317600],"33":[4350500,4350500,3317600,3317600,3317600,3317600,3317600,3317600,4350500,4350500,3317600,3317600,3317600],"34":[4350500,4350500,3317600,3317600,3317600,3317600,3317600,3317600,4350500,4350500,3317600,3317600,3317600],"35":[4758800,4758800,3630100,3630100,3630100,3630100,3630100,3630100,4758800,4758800,3630100,3630100,3630100],"36":[4758800,4758800,3630100,3630100,3630100,3630100,3630100,3630100,4758800,4758800,3630100,3630100,3630100],"37":[4758800,4758800,3630100,3630100,3630100,3630100,3630100,3630100,4758800,4758800,3630100,3630100,3630100],"38":[4758800,4758800,3630100,3630100,3630100,3630100,3630100,3630100,4758800,4758800,3630100,3630100,3630100],"39":[4758800,4758800,3630100,3630100,3630100,3630100,3630100,3630100,4758800,4758800,3630100,3630100,3630100],"40":[4948900,4948900,3774300,3774300,3774300,3774300,3774300,3774300,4948900,4948900,3774300,3774300,3774300],"41":[4948900,4948900,3774300,3774300,3774300,3774300,3774300,3774300,4948900,4948900,3774300,3774300,3774300],"42":[4948900,4948900,3774300,3774300,3774300,3774300,3774300,3774300,4948900,4948900,3774300,3774300,3774300],"43":[4948900,4948900,3774300,3774300,3774300,3774300,3774300,3774300,4948900,4948900,3774300,3774300,3774300],"44":[4948900,4948900,3774300,3774300,3774300,3774300,3774300,3774300,4948900,4948900,3774300,3774300,3774300],"45":[5195400,5195400,3962500,3962500,3962500,3962500,3962500,3962500,5195400,5195400,3962500,3962500,3962500],"46":[5195400,5195400,3962500,3962500,3962500,3962500,3962500,3962500,5195400,5195400,3962500,3962500,3962500],"47":[5195400,5195400,3962500,3962500,3962500,3962500,3962500,3962500,5195400,5195400,3962500,3962500,3962500],"48":[5195400,5195400,3962500,3962500,3962500,3962500,3962500,3962500,5195400,5195400,3962500,3962500,3962500],"49":[5195400,5195400,3962500,3962500,3962500,3962500,3962500,3962500,5195400,5195400,3962500,3962500,3962500],"50":[5455900,5455900,4162100,4162100,4162100,4162100,4162100,4162100,5455900,5455900,4162100,4162100,4162100],"51":[5455900,5455900,4162100,4162100,4162100,4162100,4162100,4162100,5455900,5455900,4162100,4162100,4162100],"52":[5455900,5455900,4162100,4162100,4162100,4162100,4162100,4162100,5455900,5455900,4162100,4162100,4162100],"53":[5455900,5455900,4162100,4162100,4162100,4162100,4162100,4162100,5455900,5455900,4162100,4162100,4162100],"54":[5455900,5455900,4162100,4162100,4162100,4162100,4162100,4162100,5455900,5455900,4162100,4162100,4162100],"55":[5727900,5727900,4370400,4370400,4370400,4370400,4370400,4370400,5727900,5727900,4370400,4370400,4370400],"56":[5727900,5727900,4370400,4370400,4370400,4370400,4370400,4370400,5727900,5727900,4370400,4370400,4370400],"57":[5727900,5727900,4370400,4370400,4370400,4370400,4370400,4370400,5727900,5727900,4370400,4370400,4370400],"58":[5727900,5727900,4370400,4370400,4370400,4370400,4370400,4370400,5727900,5727900,4370400,4370400,4370400],"59":[5727900,5727900,4370400,4370400,4370400,4370400,4370400,4370400,5727900,5727900,4370400,4370400,4370400],"60":[6094100,6094100,4649700,4649700,4649700,4649700,4649700,4649700,6094100,6094100,4649700,4649700,4649700],"61":[6094100,6094100,4649700,4649700,4649700,4649700,4649700,4649700,6094100,6094100,4649700,4649700,4649700],"62":[6094100,6094100,4649700,4649700,4649700,4649700,4649700,4649700,6094100,6094100,4649700,4649700,4649700],"63":[6094100,6094100,4649700,4649700,4649700,4649700,4649700,4649700,6094100,6094100,4649700,4649700,4649700],"64":[6094100,6094100,4649700,4649700,4649700,4649700,4649700,4649700,6094100,6094100,4649700,4649700,4649700],"65":[6549400,6549400,4995400,4995400,4995400,4995400,4995400,4995400,6549400,6549400,4995400,4995400,4995400],"66":[6549400,6549400,4995400,4995400,4995400,4995400,4995400,4995400,6549400,6549400,4995400,4995400,4995400],"67":[6549400,6549400,4995400,4995400,4995400,4995400,4995400,4995400,6549400,6549400,4995400,4995400,4995400],"68":[6549400,6549400,4995400,4995400,4995400,4995400,4995400,4995400,6549400,6549400,4995400,4995400,4995400],"69":[6549400,6549400,4995400,4995400,4995400,4995400,4995400,4995400,6549400,6549400,4995400,4995400,4995400],"70":[6549400,6549400,4995400,4995400,4995400,4995400,4995400,4995400,6549400,6549400,4995400,4995400,4995400],"71":[6816800,6816800,5199200,5199200,5199200,5199200,5199200,5199200,6816800,6816800,5199200,5199200,5199200],"72":[6816800,6816800,5199200,5199200,5199200,5199200,5199200,5199200,6816800,6816800,5199200,5199200,5199200],"73":[6816800,6816800,5199200,5199200,5199200,5199200,5199200,5199200,6816800,6816800,5199200,5199200,5199200],"74":[6816800,6816800,5199200,5199200,5199200,5199200,5199200,5199200,6816800,6816800,5199200,5199200,5199200],"75":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"76":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"77":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"78":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"79":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"80":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"81":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"82":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"83":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"84":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900],"85":[7147800,7147800,5451900,5451900,5451900,5451900,5451900,5451900,7147800,7147800,5451900,5451900,5451900]}};
+
+const PLAN_NAMES = ["Diamond","Ruby","Emerald","Topaz","Topaz ID","Jade","Jade ID","Sapphire","Diamond Smart","Ruby Smart","Emerald Smart","Topaz Smart","Topaz ID Smart","Jade Smart","Jade ID Smart"];
+
+const PLAN_DETAILS = {"Diamond":{"wilayah":"Worldwide","kamar":"1 Bed","limit":"Unlimited","deductible":null},"Ruby":{"wilayah":"Worldwide (kec. USA)","kamar":"1 Bed","limit":"90 M","deductible":null},"Emerald":{"wilayah":"Seluruh Asia","kamar":"1 Bed","limit":"35 M","deductible":null},"Topaz":{"wilayah":"Seluruh Asia (kec. JPN/HKG/SGP)","kamar":"1 Bed","limit":"18 M","deductible":null},"Topaz ID":{"wilayah":"Indonesia","kamar":"1 Bed","limit":"18 M","deductible":null},"Jade":{"wilayah":"Seluruh Asia (kec. JPN/HKG/SGP)","kamar":"2 Bed","limit":"10 M","deductible":null},"Jade ID":{"wilayah":"Indonesia","kamar":"2 Bed","limit":"10 M","deductible":null},"Sapphire":{"wilayah":"Indonesia","kamar":"2 Bed (No RI Charges)","limit":"5 M","deductible":null},"Diamond Smart":{"wilayah":"Worldwide","kamar":"1 Bed","limit":"Unlimited","deductible":"Rp16.000.000"},"Ruby Smart":{"wilayah":"Worldwide (kec. USA)","kamar":"1 Bed","limit":"90 M","deductible":"Rp16.000.000"},"Emerald Smart":{"wilayah":"Seluruh Asia","kamar":"1 Bed","limit":"35 M","deductible":"Rp8.000.000"},"Topaz Smart":{"wilayah":"Seluruh Asia (kec. JPN/HKG/SGP)","kamar":"1 Bed","limit":"18 M","deductible":"Rp8.000.000"},"Topaz ID Smart":{"wilayah":"Indonesia","kamar":"1 Bed","limit":"18 M","deductible":"Rp8.000.000"},"Jade Smart":{"wilayah":"Seluruh Asia (kec. JPN/HKG/SGP)","kamar":"2 Bed","limit":"10 M","deductible":"Rp5.000.000"},"Jade ID Smart":{"wilayah":"Indonesia","kamar":"2 Bed","limit":"10 M","deductible":"Rp5.000.000"}};
+
+
+let currentTab = 'konvensional';
+
+function escapeHtml(str) {
+    if (typeof str !== 'string') return str;
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+window.switchCalcTab = function(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.calc-tab-btn').forEach(function(btn, i) {
+        btn.classList.toggle('active', (i === 0 && tab === 'konvensional') || (i === 1 && tab === 'syariah'));
+    });
+    var gigiOpt = document.getElementById('optGigi');
+    var benefitSel = document.getElementById('benefitType');
+    if (tab === 'konvensional') {
+        gigiOpt.disabled = true;
+        gigiOpt.style.display = 'none';
+        if (benefitSel.value === 'gigi') {
+            benefitSel.value = 'inap';
+        }
+    } else {
+        gigiOpt.disabled = false;
+        gigiOpt.style.display = '';
+    }
+    calculate();
+};
+
+function formatRp(n) {
+    if (n === 0) return 'Rp0';
+    return 'Rp' + n.toLocaleString('id-ID');
+}
+
+function calcPremi(rs) {
+    var tahunan = rs;
+    var bulanan = Math.round(tahunan * 1.14 / 12 / 100) * 100;
+    return { tahunan: tahunan, bulanan: bulanan };
+}
+
+window.toggleAllPlans = function() {
+    var section = document.getElementById('all-plans-section');
+    var btn = document.getElementById('expand-btn');
+    if (section.classList.contains('show')) {
+        section.classList.remove('show');
+        btn.textContent = 'Lihat Semua Plan (7 Plan Lainnya)';
+    } else {
+        section.classList.add('show');
+        btn.textContent = 'Sembunyikan';
+    }
+};
+
+function buildCard(planName, rs, isSmart, benefitLabel) {
+    if (rs === undefined || rs === null) return '';
+    var premi = calcPremi(rs);
+    var details = PLAN_DETAILS[planName];
+    var deductibleHtml = '';
+    if (details && details.deductible) {
+        deductibleHtml = '<span class="deductible-badge">Deductible: ' + escapeHtml(details.deductible) + '</span>';
+    }
+    var wilayah = details ? escapeHtml(details.wilayah) : '-';
+    var kamar = details ? escapeHtml(details.kamar) : '-';
+    var limit = details ? escapeHtml(details.limit) : '-';
+    var safeName = escapeHtml(planName);
+    var safeBenefitLabel = escapeHtml(benefitLabel || 'Rawat Inap');
+    return '<div class="plan-card' + (isSmart ? ' smart' : '') + '">' +
+        '<div class="card-header">' + safeName + '</div>' +
+        '<div class="card-body">' +
+            '<div class="premi-row"><span class="premi-label">Premi Tahunan</span><span class="premi-value">' + formatRp(premi.tahunan) + '</span></div>' +
+            '<div class="premi-row"><span class="premi-label">Premi Bulanan</span><span class="premi-value monthly">' + formatRp(premi.bulanan) + '</span></div>' +
+            '<div class="detail-row"><span>Wilayah</span><span class="detail-val">' + wilayah + '</span></div>' +
+            '<div class="detail-row"><span>Kamar</span><span class="detail-val">' + kamar + '</span></div>' +
+            '<div class="detail-row"><span>Limit Kartu</span><span class="detail-val">' + limit + '</span></div>' +
+            '<div class="detail-row"><span>Asuransi Jiwa</span><span class="detail-val">30 Juta</span></div>' +
+            '<div class="detail-row"><span>' + safeBenefitLabel + '</span><span class="detail-val">Sesuai Tagihan</span></div>' +
+            deductibleHtml +
+        '</div>' +
+    '</div>';
+}
+
+window.calculate = function() {
+    var benefit = document.getElementById('benefitType').value;
+
+    if (currentTab === 'konvensional' && benefit === 'gigi') {
+        document.getElementById('benefitType').value = 'inap';
+        benefit = 'inap';
+    }
+
+    var benefitLabel = 'Rawat Inap';
+    if (benefit === 'jalan') benefitLabel = 'Rawat Jalan';
+    else if (benefit === 'gigi') benefitLabel = 'Rawat Gigi';
+
+    var data;
+    if (currentTab === 'konvensional') {
+        data = benefit === 'jalan' ? DATA_KONV_RJ : DATA_KONV;
+    } else {
+        if (benefit === 'jalan') data = DATA_SYARIAH_RJ;
+        else if (benefit === 'gigi') data = DATA_SYARIAH_GIGI;
+        else data = DATA_SYARIAH;
+    }
+    var gender = document.getElementById('gender').value;
+    var age = document.getElementById('age').value;
+    var row = data[gender] ? data[gender][age] : null;
+    if (!row) {
+        // Try without gender key (some data like GIGI might be flat)
+        row = data[age];
+    }
+    if (!row) {
+        document.getElementById('calcResults').innerHTML = '<div class="calc-info-box"><h4>Data tidak tersedia</h4><p>Data premi untuk usia ' + escapeHtml(age) + ' tahun tidak tersedia untuk jenis manfaat ini.</p></div>';
+        return;
+    }
+
+    // Most Wanted: Jade ID (index 6), Jade (5), Topaz ID (4), Topaz (3)
+    var mostWanted = [
+        { name: 'Jade ID', idx: 6 },
+        { name: 'Jade', idx: 5 },
+        { name: 'Topaz ID', idx: 4 },
+        { name: 'Topaz', idx: 3 }
+    ];
+
+    // HEMAT 40%: Smart Plans
+    var hemat;
+    if (currentTab === 'konvensional') {
+        hemat = [
+            { name: 'Jade ID Smart', idx: 14 },
+            { name: 'Jade Smart', idx: 13 },
+            { name: 'Topaz ID Smart', idx: 12 },
+            { name: 'Topaz Smart', idx: 11 }
+        ];
+    } else {
+        hemat = [
+            { name: 'Jade Smart', idx: 12 },
+            { name: 'Topaz Smart', idx: 11 }
+        ];
+    }
+
+    var html = '';
+
+    // Most Wanted section
+    html += '<div class="section-title">Most Wanted <span class="badge-sm">No Deductible</span></div>';
+    html += '<div class="cards-grid">';
+    for (var i = 0; i < mostWanted.length; i++) {
+        html += buildCard(mostWanted[i].name, row[mostWanted[i].idx], false, benefitLabel);
+    }
+    html += '</div>';
+
+    // HEMAT 40% section
+    html += '<div class="section-title">HEMAT 40% <span class="badge-sm" style="background:#F39C12">Smart Plan</span></div>';
+    html += '<div class="cards-grid">';
+    for (var j = 0; j < hemat.length; j++) {
+        html += buildCard(hemat[j].name, row[hemat[j].idx], true, benefitLabel);
+    }
+    html += '</div>';
+
+    // Expand button
+    html += '<button class="expand-btn" id="expand-btn" onclick="toggleAllPlans()">Lihat Semua Plan (7 Plan Lainnya)</button>';
+
+    // All plans section
+    var otherPlans = [
+        { name: 'Diamond', idx: 0 },
+        { name: 'Ruby', idx: 1 },
+        { name: 'Emerald', idx: 2 },
+        { name: 'Sapphire', idx: 7 },
+        { name: 'Diamond Smart', idx: 8 },
+        { name: 'Ruby Smart', idx: 9 },
+        { name: 'Emerald Smart', idx: 10 }
+    ];
+    html += '<div class="all-plans" id="all-plans-section">';
+    html += '<div class="section-title">Semua Plan Lainnya</div>';
+    html += '<div class="cards-grid">';
+    for (var k = 0; k < otherPlans.length; k++) {
+        var name = otherPlans[k].name;
+        var isSmart = name.toLowerCase().indexOf('smart') >= 0;
+        html += buildCard(name, row[otherPlans[k].idx], isSmart, benefitLabel);
+    }
+    html += '</div></div>';
+
+    document.getElementById('calcResults').innerHTML = html;
+
+    // Animate cards
+    var cards = document.querySelectorAll('.plan-card');
+    for (var c = 0; c < cards.length; c++) {
+        cards[c].style.animationDelay = (c * 0.05) + 's';
+    }
+    void document.getElementById('calcResults').offsetHeight;
+    for (var c = 0; c < cards.length; c++) {
+        cards[c].classList.add('animate');
+    }
+};
+
+// Initial calculation
+calculate();
+})();
+</script>
+</body>
+</html>
