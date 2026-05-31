@@ -463,18 +463,66 @@ IDR 24jt/thn (Limited) atau IDR 6jt/thn (Regular)
 </div>
 <div class="calc-field">
 <label>&#128176; Uang Pertanggungan</label>
-<select id="calc-up" onchange="calculate()"></select>
+<select id="calc-up" onchange="onUPChange()"></select>
+<input type="text" id="calc-up-manual" placeholder="Masukkan jumlah" style="display:none;width:100%;padding:10px 12px;border:2px solid #ddd;border-radius:8px;font-size:1rem;margin-top:8px;transition:border-color .2s" onfocus="this.style.borderColor='#00a758'" onblur="this.style.borderColor='#ddd'" oninput="formatManualUP(this)">
+<div id="calc-up-error" style="display:none;color:#e53935;font-size:.8rem;margin-top:4px"></div>
 </div>
 </div>
 
-<div class="calc-row" id="rider-row" style="display:none">
-<div class="calc-field" style="flex:1">
-<label>&#128737; Rider (Opsional)</label>
-<select id="calc-rider" onchange="calculate()">
-<option value="none">Tanpa Rider</option>
-<option value="essential">MiSCCP Plan Essential</option>
-<option value="complete">MiSCCP Plan Complete</option>
+<div id="rider-row" style="display:none;margin-bottom:15px">
+<div style="background:#f8fdf9;border-radius:10px;padding:18px;border:1px solid #e0e0e0">
+<label style="display:block;font-weight:600;margin-bottom:12px;color:#333;font-size:.9rem">&#128737; Rider (Opsional - Hanya Regular Pay)</label>
+<div style="display:flex;flex-wrap:wrap;gap:15px">
+<label class="rider-checkbox-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 14px;border-radius:8px;border:2px solid #e0e0e0;transition:all .2s;user-select:none" id="label-mishc">
+<input type="checkbox" id="calc-rider-mishc" onchange="onRiderChange()" style="display:none">
+<span class="rider-check-box" style="width:22px;height:22px;border-radius:6px;border:2px solid #ccc;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0">
+<svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="opacity:0;transition:opacity .2s"><path d="M2 7l3 3 7-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</span>
+<span style="font-size:.9rem"><strong>MiSHC</strong><br><span style="font-size:.8rem;color:#666">MiSmart Health Care</span></span>
+</label>
+<label class="rider-checkbox-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 14px;border-radius:8px;border:2px solid #e0e0e0;transition:all .2s;user-select:none" id="label-misccp">
+<input type="checkbox" id="calc-rider-misccp" onchange="onRiderChange()" style="display:none">
+<span class="rider-check-box" style="width:22px;height:22px;border-radius:6px;border:2px solid #ccc;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0">
+<svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="opacity:0;transition:opacity .2s"><path d="M2 7l3 3 7-7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</span>
+<span style="font-size:.9rem"><strong>MiSCCP</strong><br><span style="font-size:.8rem;color:#666">MiSmart Critical Care Plus</span></span>
+</label>
+</div>
+
+<!-- MiSHC sub-options -->
+<div id="mishc-options" style="display:none;margin-top:15px;padding-top:15px;border-top:1px solid #e0e0e0;overflow:hidden;transition:all .3s ease">
+<div class="calc-field" style="max-width:350px">
+<label style="font-weight:600;font-size:.85rem;color:#006838;margin-bottom:5px;display:block">Tipe Plan MiSHC</label>
+<select id="calc-mishc-plan" onchange="onMiSHCPlanChange()" style="width:100%;padding:10px 12px;border:2px solid #ddd;border-radius:8px;font-size:1rem;cursor:pointer">
+<option value="">-- Pilih Plan --</option>
+<option value="jade_indonesia">Jade Indonesia</option>
+<option value="jade_smart">Jade Smart</option>
+<option value="jade">Jade</option>
+<option value="topaz_indonesia">Topaz Indonesia</option>
+<option value="topaz_smart">Topaz Smart</option>
+<option value="topaz">Topaz</option>
 </select>
+<div id="mishc-coverage-note" style="display:none;margin-top:8px;font-size:.82rem;font-style:italic;color:#00a758"></div>
+</div>
+</div>
+
+<!-- MiSCCP sub-options -->
+<div id="misccp-options" style="display:none;margin-top:15px;padding-top:15px;border-top:1px solid #e0e0e0;overflow:hidden;transition:all .3s ease">
+<div style="display:flex;flex-wrap:wrap;gap:15px">
+<div class="calc-field" style="min-width:200px;flex:1">
+<label style="font-weight:600;font-size:.85rem;color:#006838;margin-bottom:5px;display:block">UP Penyakit Kritis</label>
+<select id="calc-misccp-up" onchange="onMiSCCPChange()" style="width:100%;padding:10px 12px;border:2px solid #ddd;border-radius:8px;font-size:1rem;cursor:pointer"></select>
+<input type="text" id="calc-misccp-up-manual" placeholder="Masukkan jumlah" style="display:none;width:100%;padding:10px 12px;border:2px solid #ddd;border-radius:8px;font-size:1rem;margin-top:8px;transition:border-color .2s" onfocus="this.style.borderColor='#00a758'" onblur="this.style.borderColor='#ddd'" oninput="formatManualMiSCCPUP(this)">
+</div>
+<div class="calc-field" style="min-width:200px;flex:1">
+<label style="font-weight:600;font-size:.85rem;color:#006838;margin-bottom:5px;display:block">Tipe Plan MiSCCP</label>
+<select id="calc-misccp-plan" onchange="calculate()" style="width:100%;padding:10px 12px;border:2px solid #ddd;border-radius:8px;font-size:1rem;cursor:pointer">
+<option value="essential">Plan Essential</option>
+<option value="complete">Plan Complete</option>
+</select>
+</div>
+</div>
+</div>
 </div>
 </div>
 
@@ -506,7 +554,7 @@ IDR 24jt/thn (Limited) atau IDR 6jt/thn (Regular)
 </div>
 <div style="font-size:.82rem;color:#888;margin-top:15px;font-style:italic">* Ini adalah estimasi berdasarkan tabel premi. Untuk ilustrasi resmi, silakan hubungi Pak Petrus.</div>
 <div style="font-size:.82rem;color:#888;margin-top:8px;font-style:italic">* Premi Limited Pay = Uang Pertanggungan / 10 tahun (murni tabungan, tanpa biaya proteksi).</div>
-<div style="font-size:.82rem;color:#888;margin-top:8px;font-style:italic">* Rider MiSCCP hanya tersedia untuk Regular Pay.</div>
+<div style="font-size:.82rem;color:#888;margin-top:8px;font-style:italic">* Rider hanya tersedia untuk Regular Pay.</div>
 </div>
 </div>
 </div>
@@ -673,6 +721,7 @@ function checkKomisiPassword() {
 // ============= CALCULATOR =============
 function onCurrencyChange() {
     updateUPOptions();
+    updateMiSCCPUPOptions();
     updateRiderVisibility();
     calculate();
 }
@@ -680,7 +729,125 @@ function onCurrencyChange() {
 function onPaymentChange() {
     updateAgeRange();
     updateUPOptions();
+    updateMiSCCPUPOptions();
     updateRiderVisibility();
+    calculate();
+}
+
+function onUPChange() {
+    var upEl = document.getElementById('calc-up');
+    var manualInput = document.getElementById('calc-up-manual');
+    var errorEl = document.getElementById('calc-up-error');
+    if (upEl.value === 'manual') {
+        manualInput.style.display = 'block';
+        manualInput.value = '';
+        errorEl.style.display = 'none';
+    } else {
+        manualInput.style.display = 'none';
+        errorEl.style.display = 'none';
+        calculate();
+    }
+}
+
+function formatManualUP(input) {
+    var currency = document.getElementById('calc-currency').value;
+    var raw = input.value.replace(/[^0-9]/g, '');
+    if (raw === '') { input.value = ''; calculate(); return; }
+    var num = parseInt(raw);
+    if (currency === 'idr') { input.value = formatNumberDots(num); }
+    else { input.value = formatNumberCommas(num); }
+    validateManualUP();
+    calculate();
+}
+
+function formatManualMiSCCPUP(input) {
+    var currency = document.getElementById('calc-currency').value;
+    var raw = input.value.replace(/[^0-9]/g, '');
+    if (raw === '') { input.value = ''; return; }
+    var num = parseInt(raw);
+    if (currency === 'idr') { input.value = formatNumberDots(num); }
+    else { input.value = formatNumberCommas(num); }
+    calculate();
+}
+
+function formatNumberDots(num) {
+    var str = num.toString(); var result = ''; var count = 0;
+    for (var i = str.length - 1; i >= 0; i--) { result = str[i] + result; count++; if (count % 3 === 0 && i > 0) result = '.' + result; }
+    return result;
+}
+
+function formatNumberCommas(num) {
+    var str = num.toString(); var result = ''; var count = 0;
+    for (var i = str.length - 1; i >= 0; i--) { result = str[i] + result; count++; if (count % 3 === 0 && i > 0) result = ',' + result; }
+    return result;
+}
+
+function validateManualUP() {
+    var currency = document.getElementById('calc-currency').value;
+    var manualInput = document.getElementById('calc-up-manual');
+    var errorEl = document.getElementById('calc-up-error');
+    var raw = manualInput.value.replace(/[^0-9]/g, '');
+    if (raw === '') { errorEl.style.display = 'none'; return true; }
+    var num = parseInt(raw);
+    if (currency === 'idr' && num < 500000000) { errorEl.textContent = 'Minimum UP IDR: 500.000.000 (500 Juta)'; errorEl.style.display = 'block'; return false; }
+    if (currency === 'usd' && num < 50000) { errorEl.textContent = 'Minimum UP USD: 50,000'; errorEl.style.display = 'block'; return false; }
+    errorEl.style.display = 'none'; return true;
+}
+
+function getUPValue() {
+    var upEl = document.getElementById('calc-up');
+    if (upEl.value === 'manual') {
+        var raw = document.getElementById('calc-up-manual').value.replace(/[^0-9]/g, '');
+        return raw ? parseInt(raw) : 0;
+    }
+    return parseFloat(upEl.value);
+}
+
+function getUPText() {
+    var upEl = document.getElementById('calc-up');
+    if (upEl.value === 'manual') {
+        var manualInput = document.getElementById('calc-up-manual');
+        var currency = document.getElementById('calc-currency').value;
+        if (manualInput.value) return currency === 'idr' ? ('Rp ' + manualInput.value) : ('USD ' + manualInput.value);
+        return 'Manual';
+    }
+    return upEl.options[upEl.selectedIndex].text;
+}
+
+function onRiderChange() {
+    var mishcChecked = document.getElementById('calc-rider-mishc').checked;
+    var misccpChecked = document.getElementById('calc-rider-misccp').checked;
+    updateCheckboxVisual('calc-rider-mishc', 'label-mishc');
+    updateCheckboxVisual('calc-rider-misccp', 'label-misccp');
+    document.getElementById('mishc-options').style.display = mishcChecked ? 'block' : 'none';
+    document.getElementById('misccp-options').style.display = misccpChecked ? 'block' : 'none';
+    if (misccpChecked) updateMiSCCPUPOptions();
+    calculate();
+}
+
+function updateCheckboxVisual(checkboxId, labelId) {
+    var cb = document.getElementById(checkboxId);
+    var label = document.getElementById(labelId);
+    var box = label.querySelector('.rider-check-box');
+    var svg = box.querySelector('svg');
+    if (cb.checked) { box.style.background = '#00a758'; box.style.borderColor = '#00a758'; svg.style.opacity = '1'; label.style.borderColor = '#00a758'; label.style.background = '#e8f5e9'; }
+    else { box.style.background = '#fff'; box.style.borderColor = '#ccc'; svg.style.opacity = '0'; label.style.borderColor = '#e0e0e0'; label.style.background = 'transparent'; }
+}
+
+function onMiSHCPlanChange() {
+    var plan = document.getElementById('calc-mishc-plan').value;
+    var noteEl = document.getElementById('mishc-coverage-note');
+    var coverageMap = { 'jade_indonesia': '*Plan ini memiliki wilayah pertanggungan di Indonesia', 'jade_smart': '*Plan ini memiliki wilayah pertanggungan di Asia (termasuk Indonesia)', 'jade': '*Plan ini memiliki wilayah pertanggungan di Seluruh Dunia', 'topaz_indonesia': '*Plan ini memiliki wilayah pertanggungan di Indonesia', 'topaz_smart': '*Plan ini memiliki wilayah pertanggungan di Asia (termasuk Indonesia)', 'topaz': '*Plan ini memiliki wilayah pertanggungan di Seluruh Dunia' };
+    if (plan && coverageMap[plan]) { noteEl.textContent = coverageMap[plan]; noteEl.style.display = 'block'; }
+    else { noteEl.style.display = 'none'; }
+    calculate();
+}
+
+function onMiSCCPChange() {
+    var upEl = document.getElementById('calc-misccp-up');
+    var manualInput = document.getElementById('calc-misccp-up-manual');
+    if (upEl.value === 'manual') { manualInput.style.display = 'block'; manualInput.value = ''; }
+    else { manualInput.style.display = 'none'; }
     calculate();
 }
 
@@ -689,95 +856,82 @@ function updateAgeRange() {
     var ageEl = document.getElementById('calc-age');
     var currentAge = parseInt(ageEl.value) || 30;
     var maxAge = payment === 'limited' ? 60 : 70;
-
     ageEl.innerHTML = '';
-    for (var i = 0; i <= maxAge; i++) {
-        var opt = document.createElement('option');
-        opt.value = i;
-        opt.textContent = i + ' tahun';
-        ageEl.appendChild(opt);
-    }
+    for (var i = 0; i <= maxAge; i++) { var opt = document.createElement('option'); opt.value = i; opt.textContent = i + ' tahun'; ageEl.appendChild(opt); }
     ageEl.value = Math.min(currentAge, maxAge);
 }
 
 function updateUPOptions() {
     var currency = document.getElementById('calc-currency').value;
     var upEl = document.getElementById('calc-up');
+    var manualInput = document.getElementById('calc-up-manual');
+    var errorEl = document.getElementById('calc-up-error');
     var currentUP = upEl.value;
-
     upEl.innerHTML = '';
-
+    manualInput.style.display = 'none';
+    errorEl.style.display = 'none';
     if (currency === 'idr') {
-        var opts = [
-            {value: '1000000000', text: '1 Miliar'},
-            {value: '2000000000', text: '2 Miliar'},
-            {value: '5000000000', text: '5 Miliar'},
-            {value: '10000000000', text: '10 Miliar'}
-        ];
+        var opts = [{value:'500000000',text:'500 Juta'},{value:'1000000000',text:'1 Miliar'},{value:'2000000000',text:'2 Miliar'},{value:'3000000000',text:'3 Miliar'},{value:'5000000000',text:'5 Miliar'},{value:'10000000000',text:'10 Miliar'},{value:'manual',text:'Isi Manual'}];
     } else {
-        var opts = [
-            {value: '100000', text: 'USD 100,000'},
-            {value: '500000', text: 'USD 500,000'}
-        ];
+        var opts = [{value:'50000',text:'USD 50,000'},{value:'100000',text:'USD 100,000'},{value:'200000',text:'USD 200,000'},{value:'500000',text:'USD 500,000'},{value:'manual',text:'Isi Manual'}];
     }
-
-    for (var i = 0; i < opts.length; i++) {
-        var opt = document.createElement('option');
-        opt.value = opts[i].value;
-        opt.textContent = opts[i].text;
-        upEl.appendChild(opt);
-    }
-
-    // Try to restore selection
+    for (var i = 0; i < opts.length; i++) { var opt = document.createElement('option'); opt.value = opts[i].value; opt.textContent = opts[i].text; upEl.appendChild(opt); }
     var found = false;
-    for (var i = 0; i < upEl.options.length; i++) {
-        if (upEl.options[i].value === currentUP) {
-            upEl.value = currentUP;
-            found = true;
-            break;
-        }
+    for (var i = 0; i < upEl.options.length; i++) { if (upEl.options[i].value === currentUP) { upEl.value = currentUP; found = true; break; } }
+    if (!found) { if (currency === 'idr') upEl.value = '1000000000'; else upEl.value = '100000'; }
+}
+
+function updateMiSCCPUPOptions() {
+    var currency = document.getElementById('calc-currency').value;
+    var upEl = document.getElementById('calc-misccp-up');
+    var manualInput = document.getElementById('calc-misccp-up-manual');
+    if (!upEl) return;
+    var currentVal = upEl.value;
+    upEl.innerHTML = '';
+    if (manualInput) manualInput.style.display = 'none';
+    if (currency === 'idr') {
+        var opts = [{value:'500000000',text:'500 Juta'},{value:'1000000000',text:'1 Miliar'},{value:'2000000000',text:'2 Miliar'},{value:'3000000000',text:'3 Miliar'},{value:'manual',text:'Isi Manual'}];
+    } else {
+        var opts = [{value:'50000',text:'USD 50,000'},{value:'100000',text:'USD 100,000'},{value:'200000',text:'USD 200,000'},{value:'manual',text:'Isi Manual'}];
     }
+    for (var i = 0; i < opts.length; i++) { var opt = document.createElement('option'); opt.value = opts[i].value; opt.textContent = opts[i].text; upEl.appendChild(opt); }
+    var baseUP = getUPValue();
+    var found = false;
+    for (var i = 0; i < upEl.options.length; i++) { if (upEl.options[i].value === currentVal) { upEl.value = currentVal; found = true; break; } }
+    if (!found) { for (var i = 0; i < upEl.options.length; i++) { if (parseFloat(upEl.options[i].value) === baseUP) { upEl.value = upEl.options[i].value; found = true; break; } } }
+    if (!found) { if (currency === 'idr') upEl.value = '1000000000'; else upEl.value = '100000'; }
 }
 
 function updateRiderVisibility() {
     var payment = document.getElementById('calc-payment').value;
     var riderRow = document.getElementById('rider-row');
-    var riderEl = document.getElementById('calc-rider');
-
-    if (payment === 'regular') {
-        riderRow.style.display = 'flex';
-    } else {
+    if (payment === 'regular') { riderRow.style.display = 'block'; }
+    else {
         riderRow.style.display = 'none';
-        riderEl.value = 'none';
+        document.getElementById('calc-rider-mishc').checked = false;
+        document.getElementById('calc-rider-misccp').checked = false;
+        updateCheckboxVisual('calc-rider-mishc', 'label-mishc');
+        updateCheckboxVisual('calc-rider-misccp', 'label-misccp');
+        document.getElementById('mishc-options').style.display = 'none';
+        document.getElementById('misccp-options').style.display = 'none';
     }
 }
 
 function formatIDR(rupiah) {
-    var str = Math.round(rupiah).toString();
-    var result = '';
-    var count = 0;
-    for (var i = str.length - 1; i >= 0; i--) {
-        result = str[i] + result;
-        count++;
-        if (count % 3 === 0 && i > 0) {
-            result = '.' + result;
-        }
-    }
+    var str = Math.round(rupiah).toString(); var result = ''; var count = 0;
+    for (var i = str.length - 1; i >= 0; i--) { result = str[i] + result; count++; if (count % 3 === 0 && i > 0) result = '.' + result; }
     return 'Rp ' + result;
 }
 
 function formatUSD(val) {
-    var str = Math.round(val).toString();
-    var result = '';
-    var count = 0;
-    for (var i = str.length - 1; i >= 0; i--) {
-        result = str[i] + result;
-        count++;
-        if (count % 3 === 0 && i > 0) {
-            result = ',' + result;
-        }
-    }
+    var str = Math.round(val).toString(); var result = ''; var count = 0;
+    for (var i = str.length - 1; i >= 0; i--) { result = str[i] + result; count++; if (count % 3 === 0 && i > 0) result = ',' + result; }
     return 'USD ' + result;
+}
+
+function getMiSHCPlanIndex(plan) {
+    var map = {'jade':37,'jade_smart':38,'jade_indonesia':39,'topaz':40,'topaz_smart':41,'topaz_indonesia':42};
+    return map[plan] || null;
 }
 
 function calculate() {
@@ -786,174 +940,123 @@ function calculate() {
     var currency = document.getElementById('calc-currency').value;
     var payment = document.getElementById('calc-payment').value;
     var mode = document.getElementById('calc-mode').value;
-    var upValue = parseFloat(document.getElementById('calc-up').value);
-    var rider = document.getElementById('calc-rider').value;
-
+    var upValue = getUPValue();
+    var mishcChecked = document.getElementById('calc-rider-mishc').checked;
+    var misccpChecked = document.getElementById('calc-rider-misccp').checked;
+    var mishcPlan = document.getElementById('calc-mishc-plan').value;
+    var misccpPlan = document.getElementById('calc-misccp-plan').value;
     var premiumEl = document.getElementById('calc-premium');
     var modesEl = document.getElementById('calc-modes');
     var naEl = document.getElementById('calc-na');
     var profileEl = document.getElementById('calc-profile');
     var riderNoteEl = document.getElementById('calc-rider-note');
 
+    // Validate UP
+    if (document.getElementById('calc-up').value === 'manual') {
+        if (!validateManualUP() || upValue === 0) {
+            premiumEl.textContent = '-'; modesEl.style.display = 'none'; naEl.style.display = 'none'; riderNoteEl.style.display = 'none'; profileEl.innerHTML = ''; return;
+        }
+    }
+
     // Build profile summary
     var genderName = gender === 'pria' ? 'Pria' : 'Wanita';
     var paymentName = payment === 'limited' ? 'Limited Pay (10 Tahun)' : 'Regular Pay';
-    var currencyName = currency.toUpperCase();
-    var upText = document.getElementById('calc-up').options[document.getElementById('calc-up').selectedIndex].text;
-    var riderText = rider === 'none' ? 'Tanpa Rider' : (rider === 'essential' ? 'MiSCCP Essential' : 'MiSCCP Complete');
-
-    var profileParts = '<strong>' + genderName + ', Usia ' + age + ' tahun</strong> | ' + currencyName + ' | ' + paymentName + ' | UP ' + upText;
-    if (payment === 'regular' && rider !== 'none') {
-        profileParts += ' | ' + riderText;
+    var upText = getUPText();
+    var profileParts = '<strong>' + genderName + ', Usia ' + age + ' tahun</strong> | ' + currency.toUpperCase() + ' | ' + paymentName + ' | UP ' + upText;
+    if (payment === 'regular') {
+        if (mishcChecked && mishcPlan) {
+            var planNames = {'jade_indonesia':'Jade Indonesia','jade_smart':'Jade Smart','jade':'Jade','topaz_indonesia':'Topaz Indonesia','topaz_smart':'Topaz Smart','topaz':'Topaz'};
+            profileParts += ' | MiSHC ' + (planNames[mishcPlan] || '');
+        }
+        if (misccpChecked) profileParts += ' | MiSCCP ' + (misccpPlan === 'essential' ? 'Essential' : 'Complete');
     }
     profileEl.innerHTML = profileParts;
-
-    // Reset rider note
     riderNoteEl.style.display = 'none';
 
     var premiTahunan = null;
 
     if (payment === 'limited') {
-        // Limited Pay: Premi = UP / 10
         premiTahunan = upValue / 10;
     } else {
-        // Regular Pay: need PREMIUM_DATA lookup
         var key = gender + '|' + age;
         var record = PREMIUM_DATA[key];
-        if (!record) {
-            premiumEl.textContent = 'Data tidak ditemukan';
-            modesEl.style.display = 'none';
-            naEl.style.display = 'block';
-            return;
-        }
-
+        if (!record) { premiumEl.textContent = 'Data tidak ditemukan'; modesEl.style.display = 'none'; naEl.style.display = 'block'; return; }
         var dataArray = record[currency];
-        if (!dataArray) {
-            premiumEl.textContent = 'Data tidak ditemukan';
-            modesEl.style.display = 'none';
-            naEl.style.display = 'block';
-            return;
-        }
+        if (!dataArray) { premiumEl.textContent = 'Data tidak ditemukan'; modesEl.style.display = 'none'; naEl.style.display = 'block'; return; }
+
+        var hasMiSHC = mishcChecked && mishcPlan;
+        var hasMiSCCP = misccpChecked;
 
         if (currency === 'idr') {
-            // Determine UP multiplier and index
-            var upMultiplier = 1;
-            var baseIdx = 4; // idr[4] = rate per 1M UP
-            if (upValue === 1000000000) { baseIdx = 4; upMultiplier = 1; }
-            else if (upValue === 2000000000) { baseIdx = 5; upMultiplier = 1; }
-            else if (upValue === 5000000000) { baseIdx = 6; upMultiplier = 1; }
-            else if (upValue === 10000000000) { baseIdx = 7; upMultiplier = 1; }
-
-            if (rider === 'none') {
-                var rate = dataArray[baseIdx];
-                if (rate === null || rate === undefined) {
-                    premiumEl.textContent = 'Tidak Tersedia';
-                    modesEl.style.display = 'none';
-                    naEl.style.display = 'block';
-                    return;
-                }
-                premiTahunan = rate * 1000000;
-            } else if (rider === 'essential') {
-                var riderRate = dataArray[10]; // idr[10] = MiSCCP Essential for UP 1M
-                if (riderRate === null || riderRate === undefined) {
-                    premiumEl.textContent = 'Tidak Tersedia';
-                    modesEl.style.display = 'none';
-                    naEl.style.display = 'block';
-                    return;
-                }
-                // Scale based on UP
-                var scale = 1;
-                if (upValue === 2000000000) scale = 2;
-                else if (upValue === 5000000000) scale = 5;
-                else if (upValue === 10000000000) scale = 10;
-                premiTahunan = riderRate * 1000000 * scale;
-                riderNoteEl.innerHTML = '&#9989; Termasuk Rider MiSCCP Plan Essential (premi dasar + rider asuransi penyakit kritis)';
+            var scale = upValue / 1000000000;
+            if (!hasMiSHC && !hasMiSCCP) {
+                var rate = dataArray[4];
+                if (rate === null || rate === undefined) { premiumEl.textContent = 'Tidak Tersedia'; modesEl.style.display = 'none'; naEl.style.display = 'block'; return; }
+                premiTahunan = rate * 1000000 * scale;
+            } else if (hasMiSHC && !hasMiSCCP) {
+                var planIdx = getMiSHCPlanIndex(mishcPlan);
+                if (!planIdx) { premiumEl.textContent = '-'; modesEl.style.display = 'none'; naEl.style.display = 'none'; return; }
+                var rate = dataArray[planIdx];
+                if (rate === null || rate === undefined) { premiumEl.textContent = 'Tidak Tersedia'; modesEl.style.display = 'none'; naEl.style.display = 'block'; return; }
+                premiTahunan = rate * 1000000 * scale;
+                riderNoteEl.innerHTML = '&#9989; Termasuk Rider MiSmart Health Care (MiSHC) - premi total sudah mencakup dasar + rider kesehatan rawat inap';
                 riderNoteEl.style.display = 'block';
-            } else if (rider === 'complete') {
-                var riderRate = dataArray[11]; // idr[11] = MiSCCP Complete for UP 1M
-                if (riderRate === null || riderRate === undefined) {
-                    premiumEl.textContent = 'Tidak Tersedia';
-                    modesEl.style.display = 'none';
-                    naEl.style.display = 'block';
-                    return;
-                }
-                var scale = 1;
-                if (upValue === 2000000000) scale = 2;
-                else if (upValue === 5000000000) scale = 5;
-                else if (upValue === 10000000000) scale = 10;
-                premiTahunan = riderRate * 1000000 * scale;
-                riderNoteEl.innerHTML = '&#9989; Termasuk Rider MiSCCP Plan Complete (premi dasar + rider asuransi penyakit kritis lengkap)';
+            } else if (!hasMiSHC && hasMiSCCP) {
+                var riderIdx = misccpPlan === 'essential' ? 10 : 11;
+                var rate = dataArray[riderIdx];
+                if (rate === null || rate === undefined) { premiumEl.textContent = 'Tidak Tersedia'; modesEl.style.display = 'none'; naEl.style.display = 'block'; return; }
+                premiTahunan = rate * 1000000 * scale;
+                riderNoteEl.innerHTML = '&#9989; Termasuk Rider MiSCCP Plan ' + (misccpPlan === 'essential' ? 'Essential' : 'Complete') + ' - premi total sudah mencakup dasar + rider penyakit kritis';
+                riderNoteEl.style.display = 'block';
+            } else {
+                var rate = dataArray[43];
+                if (rate === null || rate === undefined) { premiumEl.textContent = 'Tidak Tersedia'; modesEl.style.display = 'none'; naEl.style.display = 'block'; return; }
+                premiTahunan = rate * 1000000 * scale;
+                riderNoteEl.innerHTML = '&#9989; Estimasi paket lengkap (Jade + Essential). Untuk kombinasi lain, hubungi Pak Petrus.';
                 riderNoteEl.style.display = 'block';
             }
         } else {
-            // USD
-            if (rider === 'none') {
-                var idx = (upValue === 100000) ? 0 : 1; // usd[0] for 100K, usd[1] for 500K
-                var rate = dataArray[idx];
-                if (rate === null || rate === undefined) {
-                    premiumEl.textContent = 'Tidak Tersedia';
-                    modesEl.style.display = 'none';
-                    naEl.style.display = 'block';
-                    return;
-                }
-                premiTahunan = rate;
-            } else if (rider === 'essential') {
-                var baseRate = dataArray[4]; // usd[4] = MiSCCP Essential for 100K
-                if (baseRate === null || baseRate === undefined) {
-                    premiumEl.textContent = 'Tidak Tersedia';
-                    modesEl.style.display = 'none';
-                    naEl.style.display = 'block';
-                    return;
-                }
-                var scale = (upValue === 500000) ? 5 : 1;
-                premiTahunan = baseRate * scale;
-                riderNoteEl.innerHTML = '&#9989; Termasuk Rider MiSCCP Plan Essential (premi dasar + rider asuransi penyakit kritis)';
+            var scale = upValue / 100000;
+            if (!hasMiSHC && !hasMiSCCP) {
+                var rate = dataArray[0];
+                if (rate === null || rate === undefined) { premiumEl.textContent = 'Tidak Tersedia'; modesEl.style.display = 'none'; naEl.style.display = 'block'; return; }
+                premiTahunan = rate * scale;
+            } else if (hasMiSHC && !hasMiSCCP) {
+                premiumEl.textContent = '-'; modesEl.style.display = 'none'; naEl.style.display = 'none';
+                riderNoteEl.innerHTML = '&#9888;&#65039; Hubungi Pak Petrus untuk simulasi rider MiSHC dalam USD';
+                riderNoteEl.style.display = 'block'; return;
+            } else if (!hasMiSHC && hasMiSCCP) {
+                var riderIdx = misccpPlan === 'essential' ? 4 : 5;
+                var rate = dataArray[riderIdx];
+                if (rate === null || rate === undefined) { premiumEl.textContent = 'Tidak Tersedia'; modesEl.style.display = 'none'; naEl.style.display = 'block'; return; }
+                premiTahunan = rate * scale;
+                riderNoteEl.innerHTML = '&#9989; Termasuk Rider MiSCCP Plan ' + (misccpPlan === 'essential' ? 'Essential' : 'Complete');
                 riderNoteEl.style.display = 'block';
-            } else if (rider === 'complete') {
-                var baseRate = dataArray[5]; // usd[5] = MiSCCP Complete for 100K
-                if (baseRate === null || baseRate === undefined) {
-                    premiumEl.textContent = 'Tidak Tersedia';
-                    modesEl.style.display = 'none';
-                    naEl.style.display = 'block';
-                    return;
-                }
-                var scale = (upValue === 500000) ? 5 : 1;
-                premiTahunan = baseRate * scale;
-                riderNoteEl.innerHTML = '&#9989; Termasuk Rider MiSCCP Plan Complete (premi dasar + rider asuransi penyakit kritis lengkap)';
-                riderNoteEl.style.display = 'block';
+            } else {
+                premiumEl.textContent = '-'; modesEl.style.display = 'none'; naEl.style.display = 'none';
+                riderNoteEl.innerHTML = '&#9888;&#65039; Total premi dengan kedua rider: Hubungi Pak Petrus untuk simulasi lengkap';
+                riderNoteEl.style.display = 'block'; return;
             }
         }
     }
 
-    if (premiTahunan === null) {
-        premiumEl.textContent = '-';
-        modesEl.style.display = 'none';
-        naEl.style.display = 'block';
-        return;
-    }
+    if (premiTahunan === null || premiTahunan <= 0) { premiumEl.textContent = '-'; modesEl.style.display = 'none'; naEl.style.display = 'block'; return; }
 
     naEl.style.display = 'none';
     modesEl.style.display = 'grid';
 
-    // Calculate all frequency values
     var semesteran = premiTahunan / 2;
     var kuartalan = premiTahunan / 4;
     var bulanan;
-    if (currency === 'idr') {
-        bulanan = Math.round(premiTahunan / 12 / 1000) * 1000; // round to nearest 1000
-    } else {
-        bulanan = Math.round(premiTahunan / 12); // round to nearest 1
-    }
+    if (currency === 'idr') { bulanan = Math.round(premiTahunan / 12 / 1000) * 1000; }
+    else { bulanan = Math.round(premiTahunan / 12); }
 
-    // Determine premi per period based on selected mode
-    var premiPerPeriod;
-    var periodLabel;
+    var premiPerPeriod, periodLabel;
     if (mode === 'tahunan') { premiPerPeriod = premiTahunan; periodLabel = '/tahun'; }
     else if (mode === 'semesteran') { premiPerPeriod = semesteran; periodLabel = '/semester'; }
     else if (mode === 'kuartalan') { premiPerPeriod = kuartalan; periodLabel = '/kuartal'; }
     else { premiPerPeriod = bulanan; periodLabel = '/bulan'; }
 
-    // Format and display
     if (currency === 'idr') {
         premiumEl.textContent = formatIDR(premiPerPeriod) + periodLabel;
         document.getElementById('mode-tahunan').textContent = formatIDR(premiTahunan);
@@ -973,6 +1076,7 @@ function calculate() {
 document.addEventListener('DOMContentLoaded', function() {
     updateAgeRange();
     updateUPOptions();
+    updateMiSCCPUPOptions();
     updateRiderVisibility();
     calculate();
 });
